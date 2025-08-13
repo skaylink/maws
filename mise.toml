@@ -33,7 +33,7 @@ run = "uv run coverage report"
 
 [tasks.openapi-client-generator]
 description = "Generate open api client library"
-run = "openapi-python-client generate --url $API_BASE_URL --output-path ./app/clients --overwrite --meta uv"
+run = "openapi-python-client generate --url $API_BASE_URL/openapi.json --output-path ./app/clients --overwrite --meta uv"
 
 [hooks]
 postinstall = ["mise pre-commit"]
