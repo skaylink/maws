@@ -34,8 +34,7 @@ mise test
 
 ### TODOs
 
-- Implement logging: https://github.com/Delgan/loguru
-- Read env variables (API_BASE_URL, API_ACCESS_TOKEN) - hardcoded in mise.toml from file (e.g. `.skaylink`)
+- Replace hardcoded variables API_BASE_URL and API_ACCESS_TOKEN in mise.toml with `./profile.toml`
 - Publish application on pypi.org
 
 <!-- links -->
