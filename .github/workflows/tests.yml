@@ -1,0 +1,25 @@
+---
+name: tests
+on:
+  push:
+  pull_request:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup mise runtime manager
+        uses: jdx/mise-action@v2
+        with:
+          install: false
+          cache: false
+          experimental: true
+      - name: Install mise
+        run: mise install
+      - name: Run tests
+        run: mise test --cov-fail-under=82
+      - name: Create coverage report
+        run: echo "<pre>`mise coverage`<pre>" >> $GITHUB_STEP_SUMMARY
