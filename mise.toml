@@ -7,7 +7,7 @@ pre-commit = "latest"
 _.python.venv = { path = ".venv", create = true }
 PYTHONPATH = "{{ cwd }}/.venv/lib/python3/site-packages/"
 API_BASE_URL = "https://xd5gelkkdns3v5yx4x7ullor540qmcbg.lambda-url.eu-central-1.on.aws"
-API_ACCESS_TOKEN = "abc"
+API_ACCESS_TOKEN = "this-is-my-secret"
 
 [settings]
 python.uv_venv_auto = true

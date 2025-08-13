@@ -11,12 +11,16 @@ Microservice for ECS deployments
 
 ## Setup local development stack
 
-### Install [mise][mise-url]
+### Install [mise][mise-url]:
 
-#### Run the following command to run client locally
+```
+mise install
+```
+
+#### Run the following command to execute the client locally
 
 ```bash
-mise dev
+mise dev ecs deploy
 ```
 
 #### Run tests
@@ -24,6 +28,13 @@ mise dev
 ```bash
 mise test
 ```
+
+### TODOs
+
+- Add pytests
+- Implement a basic logging
+- Read envouirment variables (API_BASE_URL, API_ACCESS_TOKEN) - hardcoded in mise.toml from file (e.g. `.skaylink`)
+- Publish application on pypi.org
 
 <!-- links -->
 
