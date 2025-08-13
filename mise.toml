@@ -26,6 +26,7 @@ depends = ["openapi-client-generator"]
 [tasks.test]
 description = "Run the pytests"
 run = "uv run pytest --maxfail=1 --cov --cov-report=term-missing"
+depends = ["openapi-client-generator"]
 
 [tasks.coverage]
 description = "Get test coverage report"
