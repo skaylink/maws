@@ -9,7 +9,8 @@ from . import __app_name__, __version__
 
 class DotEnvSettings(BaseSettings):
     api_base_url: str = os.getenv("API_BASE_URL")
-    access_token: str = os.getenv("API_ACCESS_TOKEN")
+    api_version: str = os.getenv("API_VERSION", "v1")
+    api_access_token: str = os.getenv("API_ACCESS_TOKEN")
 
 
 class Settings(DotEnvSettings):
@@ -27,7 +28,10 @@ class Settings(DotEnvSettings):
             AuthenticatedClient
         """
         return AuthenticatedClient(
-            base_url=cls.api_base_url, token=cls.access_token, auth_header_name="x-api-token", prefix=""
+            base_url=f"{cls.api_base_url}/{cls.api_version}",
+            token=cls.api_access_token,
+            auth_header_name="x-api-token",
+            prefix="",
         )
 
 
