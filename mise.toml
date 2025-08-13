@@ -1,0 +1,44 @@
+[tools]
+python = "3.12"
+uv = "latest"
+pre-commit = "latest"
+
+[env]
+_.python.venv = { path = ".venv", create = true }
+PYTHONPATH = "{{ cwd }}/.venv/lib/python3/site-packages/"
+API_BASE_URL = "https://xd5gelkkdns3v5yx4x7ullor540qmcbg.lambda-url.eu-central-1.on.aws"
+API_ACCESS_TOKEN = "abc"
+
+[settings]
+python.uv_venv_auto = true
+python.compile = false
+experimental = true
+
+[tasks.pre-commit]
+description = "Install and pre-commit"
+run = "pre-commit install"
+
+[tasks.dev]
+description = "Run the typer client"
+run = "uv run app/main.py $@"
+depends = ["openapi-client-generator"]
+
+[tasks.test]
+description = "Run the pytests"
+run = "uv run pytest --maxfail=1 --cov --cov-report=term-missing"
+
+[tasks.coverage]
+description = "Get test coverage report"
+run = "uv run coverage report"
+
+[tasks.openapi-client-generator]
+description = "Generate open api client library"
+run = "openapi-python-client generate --url $API_BASE_URL --output-path ./app/clients --overwrite --meta uv"
+
+[hooks]
+postinstall = ["mise pre-commit"]
+enter = [
+  "mkdir -p {{ cwd }}/.venv/lib/python3",
+  "ln -sf {{ cwd }}/.venv/lib/python3*/site-packages {{ cwd }}/.venv/lib/python3/site-packages",
+  "mise x -- uv sync",
+]
