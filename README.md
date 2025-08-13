@@ -1,6 +1,6 @@
 # rubber-duck
 
-<img style="float:right" src="./actor.png" height="250" title="rubber"></img>
+<img style="float:right" src="./actor.png" height="250" title="Miau"></img>
 
 Microservice for ECS deployments
 
@@ -34,8 +34,7 @@ mise test
 
 ### TODOs
 
-- Add pytests
-- Implement a basic logging
+- Implement logging: https://github.com/Delgan/loguru
 - Read env variables (API_BASE_URL, API_ACCESS_TOKEN) - hardcoded in mise.toml from file (e.g. `.skaylink`)
 - Publish application on pypi.org
 
