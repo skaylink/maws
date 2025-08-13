@@ -44,4 +44,4 @@ filterwarnings = ["ignore::DeprecationWarning"]
 addopts = """-vv"""
 
 [tool.coverage.run]
-omit = ["tests/*"]
+omit = ["tests/*", "app/clients/*"]
