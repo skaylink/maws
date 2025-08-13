@@ -7,3 +7,4 @@ __pycache__
 .coverage
 .pre-commit-trivy-cache
 .venv
+app/clients/api

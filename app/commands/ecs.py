@@ -10,7 +10,7 @@ class schema(BaseModel):
     foo: HttpUrl
 
 
-@app.command(no_args_is_help=True)
+@app.command()
 def deploy() -> None:
 
     console.print("Deployment started", overflow="fold", style="bold green")
