@@ -9,6 +9,9 @@ Microservice for ECS deployments
 [![uv](https://img.shields.io/badge/built%20with-uv-6c6cff?&logoColor=6c6cff&logo=python)][uv-url]
 [![mise](https://img.shields.io/badge/using-mise-A8B1FF?logo=pnpm&logoColor=A8B1FF&style=flat)][mise-url]
 
+[![pre-commit](https://github.com/skaylink/rubber-duck/actions/workflows/pre-commit.yml/badge.svg)](https://github.com/skaylink/rubber-duck/actions/workflows/pre-commit.yml)
+[![tests](https://github.com/skaylink/rubber-duck/actions/workflows/tests.yml/badge.svg)](https://github.com/skaylink/rubber-duck/actions/workflows/tests.yml)
+
 ## Setup local development stack
 
 ### Install [mise][mise-url]:
