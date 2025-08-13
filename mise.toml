@@ -21,6 +21,7 @@ run = "pre-commit install"
 [tasks.dev]
 description = "Run the typer client"
 run = "uv run app/main.py $@"
+depends = ["openapi-client-generator"]
 
 [tasks.test]
 description = "Run the pytests"
@@ -32,10 +33,10 @@ run = "uv run coverage report"
 
 [tasks.openapi-client-generator]
 description = "Generate open api client library"
-run = "openapi-python-generator $API_BASE_URL ./app/clients/api"
+run = "openapi-python-client generate --url $API_BASE_URL --output-path ./app/clients --overwrite --meta uv"
 
 [hooks]
-postinstall = ["mise pre-commit", "mise openapi-client-generator"]
+postinstall = ["mise pre-commit"]
 enter = [
   "mkdir -p {{ cwd }}/.venv/lib/python3",
   "ln -sf {{ cwd }}/.venv/lib/python3*/site-packages {{ cwd }}/.venv/lib/python3/site-packages",

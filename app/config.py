@@ -2,7 +2,7 @@ import os
 
 from pydantic_settings import BaseSettings
 
-from app.clients.api import APIConfig
+from app.clients.ecs_service_deployment_client import AuthenticatedClient
 
 from . import __app_name__, __version__
 
@@ -19,14 +19,16 @@ class Settings(DotEnvSettings):
     }
 
     @property
-    def api_config(cls) -> APIConfig:
+    def api_client(cls) -> AuthenticatedClient:
         """
-        Define the API configuration with base URL and optional access token.
+        Get API client
 
         Returns:
-            APIConfig
+            AuthenticatedClient
         """
-        return APIConfig(base_path=cls.api_base_url, access_token=cls.access_token)
+        return AuthenticatedClient(
+            base_url=cls.api_base_url, token=cls.access_token, auth_header_name="x-api-token", prefix=""
+        )
 
 
 def get_settings():
