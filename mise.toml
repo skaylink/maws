@@ -18,7 +18,7 @@ description = "Install and pre-commit"
 run = "pre-commit install"
 
 [tasks.dev]
-description = "Run the typer client"
+description = "Run the typer client (use --profile to specify profile from profile.toml)"
 run = "uv run app/main.py $@"
 depends = ["openapi-client-generator"]
 
