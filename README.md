@@ -20,10 +20,28 @@ Microservice for ECS deployments
 mise install
 ```
 
+### Configuration
+
+Create a `~/.skaylink/profile.toml` file with your API configurations:
+
+```toml
+[profiles.dev]
+API_BASE_URL = "https://dev-api.example.com"
+API_ACCESS_TOKEN = "your-dev-token"
+
+[profiles.prod]
+API_BASE_URL = "https://prod-api.example.com"
+API_ACCESS_TOKEN = "your-prod-token"
+```
+
 #### Run the following command to execute the client locally
 
 ```bash
-mise dev ecs deploy
+# Using a specific profile
+mise dev ecs deploy service-name image-tag --profile dev
+
+# Without profile (uses environment variables)
+mise dev ecs deploy service-name image-tag
 ```
 
 #### Run tests
@@ -31,11 +49,6 @@ mise dev ecs deploy
 ```bash
 mise test
 ```
-
-### TODOs
-
-- Replace hardcoded variables API_BASE_URL and API_ACCESS_TOKEN in mise.toml with `./profile.toml`
-- Publish application on pypi.org
 
 <!-- links -->
 
