@@ -6,8 +6,7 @@ pre-commit = "latest"
 [env]
 _.python.venv = { path = ".venv", create = true }
 PYTHONPATH = "{{ cwd }}/.venv/lib/python3/site-packages/"
-API_BASE_URL = "https://xd5gelkkdns3v5yx4x7ullor540qmcbg.lambda-url.eu-central-1.on.aws"
-API_ACCESS_TOKEN = "this-is-my-secret"
+API_SCHEMA_URL = "https://xd5gelkkdns3v5yx4x7ullor540qmcbg.lambda-url.eu-central-1.on.aws/openapi.json"
 
 [settings]
 python.uv_venv_auto = true
@@ -34,7 +33,7 @@ run = "uv run coverage report"
 
 [tasks.openapi-client-generator]
 description = "Generate open api client library"
-run = "openapi-python-client generate --url $API_BASE_URL/openapi.json --output-path ./app/clients --overwrite --meta uv"
+run = "openapi-python-client generate --url $API_SCHEMA_URL --output-path ./app/clients --overwrite --meta uv"
 
 [hooks]
 postinstall = ["mise pre-commit"]
