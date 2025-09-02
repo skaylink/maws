@@ -1,7 +1,17 @@
 import os
+import tempfile
+from pathlib import Path
 from unittest.mock import Mock, patch
 
-from app.config import DotEnvSettings, Settings, get_settings
+import pytest
+
+from app.config import (
+    CONFIG_FILE_PATH,
+    DotEnvSettings,
+    Settings,
+    get_settings,
+    load_profile,
+)
 
 
 class TestDotEnvSettings:
@@ -104,6 +114,76 @@ class TestSettings:
                 assert settings.api_version == mock_vars["API_VERSION"]
                 assert settings.api_access_token == mock_vars["API_ACCESS_TOKEN"]
 
+    def test_settings_with_profile(self):
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".toml", delete=False) as f:
+            f.write(
+                """
+[profiles.test]
+API_BASE_URL = "https://test-api.example.com"
+API_ACCESS_TOKEN = "test-token"
+API_VERSION = "v2"
+"""
+            )
+            f.flush()
+
+            with patch("app.config.CONFIG_FILE_PATH", Path(f.name)):
+                settings = Settings(profile="test")
+                assert settings.api_base_url == "https://test-api.example.com"
+                assert settings.api_access_token == "test-token"
+                assert settings.api_version == "v2"
+
+        os.unlink(f.name)
+
+
+class TestProfileLoading:
+    def test_load_profile_empty_name(self):
+        result = load_profile(None)
+        assert result == {}
+
+    def test_load_profile_file_not_exists(self):
+        with patch("app.config.CONFIG_FILE_PATH") as mock_path:
+            mock_path.exists.return_value = False
+            with pytest.raises(SystemExit):
+                load_profile("dev")
+
+    def test_load_profile_success(self):
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".toml", delete=False) as f:
+            f.write(
+                """
+[profiles.dev]
+API_BASE_URL = "https://dev-api.example.com"
+API_ACCESS_TOKEN = "dev-token"
+
+[profiles.prod]
+API_BASE_URL = "https://prod-api.example.com"
+API_ACCESS_TOKEN = "prod-token"
+"""
+            )
+            f.flush()
+
+            with patch("app.config.CONFIG_FILE_PATH", Path(f.name)):
+                result = load_profile("dev")
+                assert result["API_BASE_URL"] == "https://dev-api.example.com"
+                assert result["API_ACCESS_TOKEN"] == "dev-token"
+
+        os.unlink(f.name)
+
+    def test_load_profile_not_found(self):
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".toml", delete=False) as f:
+            f.write(
+                """
+[profiles.dev]
+API_BASE_URL = "https://dev-api.example.com"
+"""
+            )
+            f.flush()
+
+            with patch("app.config.CONFIG_FILE_PATH", Path(f.name)):
+                with pytest.raises(SystemExit):
+                    load_profile("nonexistent")
+
+        os.unlink(f.name)
+
 
 class TestGetSettings:
 
@@ -136,3 +216,29 @@ class TestGetSettings:
                 assert settings.api_access_token == mock_vars["API_ACCESS_TOKEN"]
                 assert settings.meta["name"] == "rubber-duck"
                 assert settings.meta["version"] == "0.0.1"
+
+    def test_get_settings_with_profile(self):
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".toml", delete=False) as f:
+            f.write(
+                """
+[profiles.test]
+API_BASE_URL = "https://test-api.example.com"
+API_ACCESS_TOKEN = "test-token"
+API_VERSION = "v2"
+"""
+            )
+            f.flush()
+
+            with patch("app.config.CONFIG_FILE_PATH", Path(f.name)):
+                settings = get_settings("test")
+                assert settings.api_base_url == "https://test-api.example.com"
+                assert settings.api_access_token == "test-token"
+                assert settings.api_version == "v2"
+
+        os.unlink(f.name)
+
+
+class TestConfigFilePath:
+    def test_config_file_path_is_correct(self):
+        expected_path = Path.home() / ".skaylink" / "profile.toml"
+        assert CONFIG_FILE_PATH == expected_path
