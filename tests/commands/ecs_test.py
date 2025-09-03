@@ -86,8 +86,7 @@ class TestDeployCommand:
 
         mock_response = Mock()
         mock_response.status_code = HTTPStatus.BAD_REQUEST
-        mock_response.parsed = Mock()
-        mock_response.parsed.error = error_message
+        mock_response.content = f'{{"error": "{error_message}"}}'
         mock_patch_service.sync_detailed.return_value = mock_response
         mock_get_settings.return_value.api_client = Mock()
 
@@ -325,18 +324,20 @@ class TestECSCommandsCLI:
 
     @patch("app.commands.ecs.get_settings")
     @patch("app.commands.ecs.patch_service")
+    @patch("app.commands.ecs.status")
     @patch("app.commands.ecs.console")
-    def test_deploy_command_cli(self, mock_console, mock_patch_service, mock_get_settings, fake):
+    def test_deploy_command_cli(self, mock_console, mock_status, mock_patch_service, mock_get_settings, fake):
         runner = CliRunner()
         service_name = fake.word()
         image = fake.uuid4()
+        profile = fake.word()
 
         mock_response = Mock()
         mock_response.status_code = HTTPStatus.CREATED
         mock_patch_service.sync_detailed.return_value = mock_response
         mock_get_settings.return_value.api_client = Mock()
 
-        runner.invoke(app, ["deploy", service_name, image])
+        runner.invoke(app, ["deploy", service_name, image, "--profile", profile])
 
         mock_patch_service.sync_detailed.assert_called_once()
 
@@ -346,13 +347,14 @@ class TestECSCommandsCLI:
     def test_status_command_cli(self, mock_console, mock_get_service, mock_get_settings, fake):
         runner = CliRunner()
         service_name = fake.word()
+        profile = fake.word()
 
         mock_response = Mock()
         mock_response.status_code = HTTPStatus.OK
         mock_get_service.sync_detailed.return_value = mock_response
         mock_get_settings.return_value.api_client = Mock()
 
-        runner.invoke(app, ["status", service_name])
+        runner.invoke(app, ["status", service_name, "--profile", profile])
 
         mock_get_service.sync_detailed.assert_called_once()
 
@@ -362,6 +364,7 @@ class TestECSCommandsCLI:
     def test_status_command_cli_with_delay(self, mock_console, mock_get_service, mock_get_settings, fake):
         runner = CliRunner()
         service_name = fake.word()
+        profile = fake.word()
         custom_delay = fake.random_int(min=1, max=60)
 
         mock_response = Mock()
@@ -369,7 +372,7 @@ class TestECSCommandsCLI:
         mock_get_service.sync_detailed.return_value = mock_response
         mock_get_settings.return_value.api_client = Mock()
 
-        runner.invoke(app, ["status", service_name, "--delay", str(custom_delay)])
+        runner.invoke(app, ["status", service_name, "--delay", str(custom_delay), "--profile", profile])
 
         mock_get_service.sync_detailed.assert_called_once()
 
