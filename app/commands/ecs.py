@@ -1,3 +1,4 @@
+import json
 import time
 from http import HTTPStatus
 
@@ -20,7 +21,7 @@ def deploy(
     service_name: str = typer.Argument(help="The name of the service to be updated"),
     image: str = typer.Argument(help="The container image to use for the service"),
     force: bool = typer.Option(False, help="Force new deployment, event if images has not changed"),
-    profile: str = typer.Option(None, help=f"Profile name from {str(CONFIG_FILE_PATH)}"),
+    profile: str = typer.Option(help=f"Profile name from {str(CONFIG_FILE_PATH)}"),
 ) -> None:
     """
     ECS Service Deployment Request
@@ -43,7 +44,8 @@ def deploy(
             console.print(f"Deployment successfully started for service [italic]{service_name}[/italic]", style="green")
             return status(service_name=service_name, delay=5, profile=profile)
         else:
-            console.print(f"[ERROR] {response.parsed.error}", style="red", new_line_start=True)
+            content = json.loads(response.content)
+            console.print(f"[ERROR] {content.get("error")}", style="red", new_line_start=True)
             raise Exception(f"Deployment failed with status {response.status_code}")
     except Exception as e:
         console.print(e, overflow="fold", style="red")
@@ -54,7 +56,7 @@ def deploy(
 def status(
     service_name: str = typer.Argument(help="Name of the ECS service to check"),
     delay: int = typer.Option(5, help="The delay to check if the ECS service status"),
-    profile: str = typer.Option(None, help=f"Profile name from {str(CONFIG_FILE_PATH)}"),
+    profile: str = typer.Option(help=f"Profile name from {str(CONFIG_FILE_PATH)}"),
 ) -> None:
     """
     Get the status of an ECS service deployment
