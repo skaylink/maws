@@ -39,9 +39,6 @@ API_ACCESS_TOKEN = "your-prod-token"
 ```bash
 # Using a specific profile
 mise dev ecs deploy service-name image-tag --profile dev
-
-# Without profile (uses environment variables)
-mise dev ecs deploy service-name image-tag
 ```
 
 #### Run tests
