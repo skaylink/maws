@@ -1,0 +1,197 @@
+openapi: 3.0.0
+info:
+  title: ECS Service Deployment
+  version: 25.8.0
+servers:
+  - url: /
+    variables:
+      basePath:
+        default: v1
+paths:
+  /services/{service}:
+    get:
+      tags:
+        - Services
+      summary: Get deployment status for ECS service.
+      description: Get deployment status for ECS service.
+      operationId: get_service
+      responses:
+        '200':
+          description: OK
+        '202':
+          description: In progress
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+        '417':
+          description: ExpectationFailed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+        - ApiKeyAuth: []
+    patch:
+      tags:
+        - Services
+      summary: Update an ECS service.
+      description: Update an ECS service.
+      operationId: patch_service
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceDeploymentRequest'
+        required: false
+      responses:
+        '201':
+          description: Created
+        '403':
+          description: Unauthorized
+        '404':
+          description: Not Found
+        '417':
+          description: ExpectationFailed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+        - ApiKeyAuth: []
+    parameters:
+      - description: Service name
+        required: true
+        deprecated: false
+        schema:
+          type: string
+        name: service
+        in: path
+        allowEmptyValue: false
+        allowReserved: false
+  /tasks/{task}:
+    patch:
+      tags:
+        - Tasks
+      summary: Update an ECS scheduled task.
+      description: Update an ECS scheduled task.
+      operationId: patch_task
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskDeploymentRequest'
+        required: false
+      responses:
+        '201':
+          description: Created
+        '403':
+          description: Unauthorized
+        '404':
+          description: Not Found
+        '417':
+          description: ExpectationFailed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+        - ApiKeyAuth: []
+    parameters:
+      - description: Task name
+        required: true
+        deprecated: false
+        schema:
+          type: string
+        name: task
+        in: path
+        allowEmptyValue: false
+        allowReserved: false
+  /services:
+    get:
+      tags:
+        - Services
+      summary: Get available ECS services.
+      description: Get available ECS services.
+      operationId: get_services
+      responses:
+        '200':
+          description: OK
+        '403':
+          description: Unauthorized
+      deprecated: false
+      security:
+        - ApiKeyAuth: []
+  /tasks:
+    get:
+      tags:
+        - Tasks
+      summary: Get available ECS tasks.
+      description: Get available ECS tasks.
+      operationId: get_tasks
+      responses:
+        '200':
+          description: OK
+        '403':
+          description: Unauthorized
+      deprecated: false
+      security:
+        - ApiKeyAuth: []
+components:
+  schemas:
+    ErrorResponse:
+      title: ErrorResponse
+      required:
+        - error
+      type: object
+      properties:
+        error:
+          title: Error
+          anyOf:
+            - type: string
+            - type: array
+              items: {}
+    ServiceDeploymentRequest:
+      title: ServiceDeploymentRequest
+      required:
+        - image
+      type: object
+      properties:
+        image:
+          title: Image
+          minLength: 1
+          type: string
+          description: The container image to use for the service
+        force:
+          title: Force
+          type: boolean
+          description: Force deployment of same image
+          default: false
+          nullable: true
+      description: ECS Service Deployment Request.
+    TaskDeploymentRequest:
+      title: TaskDeploymentRequest
+      required:
+        - image
+      type: object
+      properties:
+        image:
+          title: Image
+          minLength: 1
+          type: string
+          description: The container image to use for the service
+      description: 'ECS Task Deployment Request.
+
+        Triggered by either scheduled or event pattern.'
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      name: x-api-token
+      in: header
