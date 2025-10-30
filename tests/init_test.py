@@ -1,4 +1,4 @@
-from app import __app_name__, __version__
+from rubber_duck import __app_name__, __version__
 
 
 class TestAppConstants:

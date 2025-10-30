@@ -5,7 +5,7 @@ from unittest.mock import Mock, call, patch
 import typer
 from typer.testing import CliRunner
 
-from app.commands.ecs import app, deploy, status
+from rubber_duck.commands.ecs import app, deploy, status
 
 runner = CliRunner()
 
@@ -25,8 +25,8 @@ class TestECSCommands:
         assert "Usage:" in result.stdout
 
 
-@patch("app.commands.ecs.get_settings")
-@patch("app.commands.ecs.patch_service")
+@patch("rubber_duck.commands.ecs.get_settings")
+@patch("rubber_duck.commands.ecs.patch_service")
 def test_jowe(mock_patch_service, mock_get_settings, mock_response_failed, fake):
     mock_get_settings.return_value.api_client = Mock()
     mock_patch_service.sync_detailed.return_value = mock_response_failed()
@@ -43,10 +43,10 @@ def test_jowe(mock_patch_service, mock_get_settings, mock_response_failed, fake)
 
 class TestDeployCommand:
 
-    @patch("app.commands.ecs.get_settings")
-    @patch("app.commands.ecs.patch_service")
-    @patch("app.commands.ecs.console")
-    @patch("app.commands.ecs.status")
+    @patch("rubber_duck.commands.ecs.get_settings")
+    @patch("rubber_duck.commands.ecs.patch_service")
+    @patch("rubber_duck.commands.ecs.console")
+    @patch("rubber_duck.commands.ecs.status")
     def test_deploy_success_pending_status(
         self, mock_status, mock_console, mock_patch_service, mock_get_settings, fake
     ):
@@ -61,9 +61,9 @@ class TestDeployCommand:
         mock_patch_service.sync_detailed.assert_called_once()
         mock_console.print.assert_called()
 
-    @patch("app.commands.ecs.get_settings")
-    @patch("app.commands.ecs.patch_service")
-    @patch("app.commands.ecs.console")
+    @patch("rubber_duck.commands.ecs.get_settings")
+    @patch("rubber_duck.commands.ecs.patch_service")
+    @patch("rubber_duck.commands.ecs.console")
     def test_deploy_success_non_pending_status(self, mock_console, mock_patch_service, mock_get_settings, fake):
         service_name = fake.word()
         image = fake.uuid4()
@@ -76,9 +76,9 @@ class TestDeployCommand:
         deploy(service_name, image)
         mock_patch_service.sync_detailed.assert_called_once()
 
-    @patch("app.commands.ecs.get_settings")
-    @patch("app.commands.ecs.patch_service")
-    @patch("app.commands.ecs.console")
+    @patch("rubber_duck.commands.ecs.get_settings")
+    @patch("rubber_duck.commands.ecs.patch_service")
+    @patch("rubber_duck.commands.ecs.console")
     def test_deploy_failure_status(self, mock_console, mock_patch_service, mock_get_settings, fake):
         service_name = fake.word()
         image = fake.uuid4()
@@ -98,9 +98,9 @@ class TestDeployCommand:
         assert len(error_calls) > 0, "Expected an error message to be printed"
         assert isinstance(result, type(typer.Abort()))
 
-    @patch("app.commands.ecs.get_settings")
-    @patch("app.commands.ecs.patch_service")
-    @patch("app.commands.ecs.console")
+    @patch("rubber_duck.commands.ecs.get_settings")
+    @patch("rubber_duck.commands.ecs.patch_service")
+    @patch("rubber_duck.commands.ecs.console")
     def test_deploy_exception_handling(self, mock_console, mock_patch_service, mock_get_settings, fake):
         service_name = fake.word()
         image = fake.uuid4()
@@ -111,8 +111,8 @@ class TestDeployCommand:
         assert isinstance(result, type(typer.Abort()))
         mock_console.print.assert_called()
 
-    @patch("app.commands.ecs.get_settings")
-    @patch("app.commands.ecs.patch_service")
+    @patch("rubber_duck.commands.ecs.get_settings")
+    @patch("rubber_duck.commands.ecs.patch_service")
     def test_deploy_with_various_service_names(self, mock_patch_service, mock_get_settings, fake):
         mock_response = Mock()
         mock_response.status_code = HTTPStatus.CREATED
@@ -129,14 +129,14 @@ class TestDeployCommand:
         image = fake.uuid4()
 
         for service_name in service_names:
-            with patch("app.commands.ecs.console"):
+            with patch("rubber_duck.commands.ecs.console"):
                 deploy(service_name, image)
                 args, kwargs = mock_patch_service.sync_detailed.call_args
                 assert kwargs["body"].image == image
 
-    @patch("app.commands.ecs.get_settings")
-    @patch("app.commands.ecs.patch_service")
-    @patch("app.commands.ecs.console")
+    @patch("rubber_duck.commands.ecs.get_settings")
+    @patch("rubber_duck.commands.ecs.patch_service")
+    @patch("rubber_duck.commands.ecs.console")
     def test_deploy_with_profile(self, mock_console, mock_patch_service, mock_get_settings, fake):
         service_name = fake.word()
         image = fake.uuid4()
@@ -147,16 +147,16 @@ class TestDeployCommand:
         mock_patch_service.sync_detailed.return_value = mock_response
         mock_get_settings.return_value.api_client = Mock()
 
-        with patch("app.commands.ecs.status"):
+        with patch("rubber_duck.commands.ecs.status"):
             deploy(service_name, image, profile=profile)
             mock_get_settings.assert_called_with(profile)
 
 
 class TestStatusCommand:
 
-    @patch("app.commands.ecs.get_settings")
-    @patch("app.commands.ecs.get_service")
-    @patch("app.commands.ecs.console")
+    @patch("rubber_duck.commands.ecs.get_settings")
+    @patch("rubber_duck.commands.ecs.get_service")
+    @patch("rubber_duck.commands.ecs.console")
     @patch("time.sleep")
     def test_status_successful_completion(self, mock_sleep, mock_console, mock_get_service, mock_get_settings, fake):
         service_name = fake.word()
@@ -166,7 +166,10 @@ class TestStatusCommand:
         mock_response_pending.status_code = HTTPStatus.ACCEPTED
         mock_response_success = Mock()
         mock_response_success.status_code = HTTPStatus.OK
-        mock_get_service.sync_detailed.side_effect = [mock_response_pending, mock_response_success]
+        mock_get_service.sync_detailed.side_effect = [
+            mock_response_pending,
+            mock_response_success,
+        ]
         mock_get_settings.return_value.api_client = Mock()
 
         status(service_name, delay)
@@ -174,13 +177,15 @@ class TestStatusCommand:
         assert mock_get_service.sync_detailed.call_count == 2
         mock_sleep.assert_called_once_with(5)
         mock_console.print.assert_any_call(
-            f"Checking deployment status for service [italic]{service_name}[/italic]", end="", style="cyan"
+            f"Checking deployment status for service [italic]{service_name}[/italic]",
+            end="",
+            style="cyan",
         )
         mock_console.print.assert_any_call(f"\nDeployment succeeded with status {HTTPStatus.OK}.", style="green")
 
-    @patch("app.commands.ecs.get_settings")
-    @patch("app.commands.ecs.get_service")
-    @patch("app.commands.ecs.console")
+    @patch("rubber_duck.commands.ecs.get_settings")
+    @patch("rubber_duck.commands.ecs.get_service")
+    @patch("rubber_duck.commands.ecs.console")
     @patch("time.sleep")
     def test_status_with_custom_delay(self, mock_sleep, mock_console, mock_get_service, mock_get_settings, fake):
         service_name = fake.word()
@@ -195,9 +200,9 @@ class TestStatusCommand:
 
         mock_sleep.assert_not_called()
 
-    @patch("app.commands.ecs.get_settings")
-    @patch("app.commands.ecs.get_service")
-    @patch("app.commands.ecs.console")
+    @patch("rubber_duck.commands.ecs.get_settings")
+    @patch("rubber_duck.commands.ecs.get_service")
+    @patch("rubber_duck.commands.ecs.console")
     @patch("time.sleep")
     def test_status_in_progress_then_failed(self, mock_sleep, mock_console, mock_get_service, mock_get_settings, fake):
         service_name = fake.word()
@@ -208,19 +213,23 @@ class TestStatusCommand:
         mock_response_failed = Mock()
         mock_response_failed.status_code = HTTPStatus.EXPECTATION_FAILED
 
-        mock_get_service.sync_detailed.side_effect = [mock_response_progress, mock_response_failed]
+        mock_get_service.sync_detailed.side_effect = [
+            mock_response_progress,
+            mock_response_failed,
+        ]
         mock_get_settings.return_value.api_client = Mock()
 
         status(service_name)
 
         assert mock_get_service.sync_detailed.call_count == 2
         mock_console.print.assert_any_call(
-            f"\nDeployment failed with status {HTTPStatus.EXPECTATION_FAILED}.", style="red"
+            f"\nDeployment failed with status {HTTPStatus.EXPECTATION_FAILED}.",
+            style="red",
         )
 
-    @patch("app.commands.ecs.get_settings")
-    @patch("app.commands.ecs.get_service")
-    @patch("app.commands.ecs.console")
+    @patch("rubber_duck.commands.ecs.get_settings")
+    @patch("rubber_duck.commands.ecs.get_service")
+    @patch("rubber_duck.commands.ecs.console")
     def test_status_http_error(self, mock_console, mock_get_service, mock_get_settings, fake):
         service_name = fake.word()
 
@@ -234,9 +243,9 @@ class TestStatusCommand:
         assert isinstance(result, type(typer.Abort()))
         mock_console.print.assert_called()
 
-    @patch("app.commands.ecs.get_settings")
-    @patch("app.commands.ecs.get_service")
-    @patch("app.commands.ecs.console")
+    @patch("rubber_duck.commands.ecs.get_settings")
+    @patch("rubber_duck.commands.ecs.get_service")
+    @patch("rubber_duck.commands.ecs.console")
     def test_status_exception_handling(self, mock_console, mock_get_service, mock_get_settings, fake):
         service_name = fake.word()
 
@@ -248,9 +257,9 @@ class TestStatusCommand:
         assert isinstance(result, type(typer.Abort()))
         mock_console.print.assert_called()
 
-    @patch("app.commands.ecs.get_settings")
-    @patch("app.commands.ecs.get_service")
-    @patch("app.commands.ecs.console")
+    @patch("rubber_duck.commands.ecs.get_settings")
+    @patch("rubber_duck.commands.ecs.get_service")
+    @patch("rubber_duck.commands.ecs.console")
     @patch("time.sleep")
     def test_status_multiple_pending_cycles(self, mock_sleep, mock_console, mock_get_service, mock_get_settings, fake):
         service_name = fake.word()
@@ -287,9 +296,9 @@ class TestStatusCommand:
 
         for service_name in service_names:
             with (
-                patch("app.commands.ecs.get_settings") as mock_get_settings,
-                patch("app.commands.ecs.get_service") as mock_get_service,
-                patch("app.commands.ecs.console"),
+                patch("rubber_duck.commands.ecs.get_settings") as mock_get_settings,
+                patch("rubber_duck.commands.ecs.get_service") as mock_get_service,
+                patch("rubber_duck.commands.ecs.console"),
             ):
 
                 mock_response = Mock()
@@ -300,12 +309,13 @@ class TestStatusCommand:
                 status(service_name)
 
                 mock_get_service.sync_detailed.assert_called_with(
-                    service=service_name, client=mock_get_settings.return_value.api_client
+                    service=service_name,
+                    client=mock_get_settings.return_value.api_client,
                 )
 
-    @patch("app.commands.ecs.get_settings")
-    @patch("app.commands.ecs.get_service")
-    @patch("app.commands.ecs.console")
+    @patch("rubber_duck.commands.ecs.get_settings")
+    @patch("rubber_duck.commands.ecs.get_service")
+    @patch("rubber_duck.commands.ecs.console")
     def test_status_with_profile(self, mock_console, mock_get_service, mock_get_settings, fake):
         service_name = fake.word()
         profile = "prod"
@@ -322,10 +332,10 @@ class TestStatusCommand:
 
 class TestECSCommandsCLI:
 
-    @patch("app.commands.ecs.get_settings")
-    @patch("app.commands.ecs.patch_service")
-    @patch("app.commands.ecs.status")
-    @patch("app.commands.ecs.console")
+    @patch("rubber_duck.commands.ecs.get_settings")
+    @patch("rubber_duck.commands.ecs.patch_service")
+    @patch("rubber_duck.commands.ecs.status")
+    @patch("rubber_duck.commands.ecs.console")
     def test_deploy_command_cli(self, mock_console, mock_status, mock_patch_service, mock_get_settings, fake):
         runner = CliRunner()
         service_name = fake.word()
@@ -341,9 +351,9 @@ class TestECSCommandsCLI:
 
         mock_patch_service.sync_detailed.assert_called_once()
 
-    @patch("app.commands.ecs.get_settings")
-    @patch("app.commands.ecs.get_service")
-    @patch("app.commands.ecs.console")
+    @patch("rubber_duck.commands.ecs.get_settings")
+    @patch("rubber_duck.commands.ecs.get_service")
+    @patch("rubber_duck.commands.ecs.console")
     def test_status_command_cli(self, mock_console, mock_get_service, mock_get_settings, fake):
         runner = CliRunner()
         service_name = fake.word()
@@ -358,9 +368,9 @@ class TestECSCommandsCLI:
 
         mock_get_service.sync_detailed.assert_called_once()
 
-    @patch("app.commands.ecs.get_settings")
-    @patch("app.commands.ecs.get_service")
-    @patch("app.commands.ecs.console")
+    @patch("rubber_duck.commands.ecs.get_settings")
+    @patch("rubber_duck.commands.ecs.get_service")
+    @patch("rubber_duck.commands.ecs.console")
     def test_status_command_cli_with_delay(self, mock_console, mock_get_service, mock_get_settings, fake):
         runner = CliRunner()
         service_name = fake.word()
@@ -372,13 +382,23 @@ class TestECSCommandsCLI:
         mock_get_service.sync_detailed.return_value = mock_response
         mock_get_settings.return_value.api_client = Mock()
 
-        runner.invoke(app, ["status", service_name, "--delay", str(custom_delay), "--profile", profile])
+        runner.invoke(
+            app,
+            [
+                "status",
+                service_name,
+                "--delay",
+                str(custom_delay),
+                "--profile",
+                profile,
+            ],
+        )
 
         mock_get_service.sync_detailed.assert_called_once()
 
-    @patch("app.commands.ecs.get_settings")
-    @patch("app.commands.ecs.patch_service")
-    @patch("app.commands.ecs.console")
+    @patch("rubber_duck.commands.ecs.get_settings")
+    @patch("rubber_duck.commands.ecs.patch_service")
+    @patch("rubber_duck.commands.ecs.console")
     def test_deploy_command_cli_with_profile(self, mock_console, mock_patch_service, mock_get_settings, fake):
         runner = CliRunner()
         service_name = fake.word()
@@ -390,6 +410,6 @@ class TestECSCommandsCLI:
         mock_patch_service.sync_detailed.return_value = mock_response
         mock_get_settings.return_value.api_client = Mock()
 
-        with patch("app.commands.ecs.status"):
+        with patch("rubber_duck.commands.ecs.status"):
             runner.invoke(app, ["deploy", service_name, image, "--profile", profile])
             mock_get_settings.assert_called_with(profile)

@@ -3,7 +3,7 @@ from unittest.mock import patch
 import typer
 from typer.testing import CliRunner
 
-from app.main import app, ecs_commands
+from rubber_duck.main import app, ecs_commands
 
 
 class TestMainApp:
@@ -68,14 +68,14 @@ class TestMainApp:
         result = runner.invoke(ecs_commands, [])
         assert result.exit_code == 0
 
-    @patch("app.main.app")
-    def test_main_execution(self, mock_app):
-        mock_app.return_value = None
+    @patch("rubber_duck.main.app")
+    def test_main_execution(self, mock_rubber_duck):
+        mock_rubber_duck.return_value = None
 
-        import app.main
+        import rubber_duck.main
 
-        assert hasattr(app.main, "app")
-        assert callable(app.main.app)
+        assert hasattr(rubber_duck.main, "app")
+        assert callable(rubber_duck.main.app)
 
     def test_app_with_fake_commands(self, fake):
         runner = CliRunner()

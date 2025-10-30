@@ -14,9 +14,9 @@ Microservice for ECS deployments
 
 ## Setup local development stack
 
-### Install [mise][mise-url]:
+### Install [mise][mise-url]
 
-```
+```bash
 mise install
 ```
 

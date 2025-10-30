@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from app.config import (
+from rubber_duck.config import (
     CONFIG_FILE_PATH,
     DotEnvSettings,
     Settings,
@@ -61,7 +61,7 @@ class TestSettings:
             assert settings.meta["name"] == "rubber-duck"
             assert settings.meta["version"] == "0.0.1"
 
-    @patch("app.config.AuthenticatedClient")
+    @patch("rubber_duck.config.AuthenticatedClient")
     def test_api_client_property(self, mock_client_class, fake, mock_env_vars):
         mock_client_instance = Mock()
         mock_client_class.return_value = mock_client_instance
@@ -78,7 +78,7 @@ class TestSettings:
             )
             assert client == mock_client_instance
 
-    @patch("app.config.AuthenticatedClient")
+    @patch("rubber_duck.config.AuthenticatedClient")
     def test_api_client_with_default_version(self, mock_client_class, fake):
         mock_client_instance = Mock()
         mock_client_class.return_value = mock_client_instance
@@ -126,7 +126,7 @@ API_VERSION = "v2"
             )
             f.flush()
 
-            with patch("app.config.CONFIG_FILE_PATH", Path(f.name)):
+            with patch("rubber_duck.config.CONFIG_FILE_PATH", Path(f.name)):
                 settings = Settings(profile="test")
                 assert settings.api_base_url == "https://test-api.example.com"
                 assert settings.api_access_token == "test-token"
@@ -141,7 +141,7 @@ class TestProfileLoading:
         assert result == {}
 
     def test_load_profile_file_not_exists(self):
-        with patch("app.config.CONFIG_FILE_PATH") as mock_path:
+        with patch("rubber_duck.config.CONFIG_FILE_PATH") as mock_path:
             mock_path.exists.return_value = False
             with pytest.raises(SystemExit):
                 load_profile("dev")
@@ -161,7 +161,7 @@ API_ACCESS_TOKEN = "prod-token"
             )
             f.flush()
 
-            with patch("app.config.CONFIG_FILE_PATH", Path(f.name)):
+            with patch("rubber_duck.config.CONFIG_FILE_PATH", Path(f.name)):
                 result = load_profile("dev")
                 assert result["API_BASE_URL"] == "https://dev-api.example.com"
                 assert result["API_ACCESS_TOKEN"] == "dev-token"
@@ -178,7 +178,7 @@ API_BASE_URL = "https://dev-api.example.com"
             )
             f.flush()
 
-            with patch("app.config.CONFIG_FILE_PATH", Path(f.name)):
+            with patch("rubber_duck.config.CONFIG_FILE_PATH", Path(f.name)):
                 with pytest.raises(SystemExit):
                     load_profile("nonexistent")
 
@@ -229,7 +229,7 @@ API_VERSION = "v2"
             )
             f.flush()
 
-            with patch("app.config.CONFIG_FILE_PATH", Path(f.name)):
+            with patch("rubber_duck.config.CONFIG_FILE_PATH", Path(f.name)):
                 settings = get_settings("test")
                 assert settings.api_base_url == "https://test-api.example.com"
                 assert settings.api_access_token == "test-token"

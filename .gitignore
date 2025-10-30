@@ -7,4 +7,5 @@ __pycache__
 .coverage
 .pre-commit-trivy-cache
 .venv
-app/clients
+dist
+src/rubber_duck/clients
