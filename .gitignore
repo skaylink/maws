@@ -9,3 +9,4 @@ __pycache__
 .venv
 dist
 src/rubber_duck/clients
+nuitka-crash-report.xml
