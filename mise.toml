@@ -30,10 +30,6 @@ depends = ["openapi-client-generator"]
 description = "Get test coverage report"
 run = "uv run coverage report"
 
-[tasks.openapi-client-generator]
-description = "Generate open api client library"
-run = "openapi-python-client generate --path ./openapi.yaml --output-path ./src/rubber_duck/clients --overwrite --meta uv"
-
 [hooks]
 postinstall = ["mise pre-commit"]
 enter = [
