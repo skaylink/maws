@@ -1,7 +1,6 @@
 import json
 import time
 from http import HTTPStatus
-from re import match
 
 import typer
 from rich.console import Console
@@ -19,14 +18,6 @@ app = typer.Typer(no_args_is_help=True)
 console = Console()
 
 
-def secret_arn_pattern(value):
-    pattern = r"arn:aws:secretsmanager:[a-z0-9-]+:[0-9]+:secret:.*"
-    for item in value:
-        if not match(pattern, item):
-            raise typer.BadParameter(f"Does not match the pattern: {pattern}")
-    return value
-
-
 @app.command()
 def deploy(
     service_name: str = typer.Argument(help="The name of the service to be updated"),
@@ -38,7 +29,6 @@ def deploy(
     secret_arns: list[str] = typer.Option(
         [],
         help="List of secret ARNs to attach to the service",
-        callback=secret_arn_pattern,
     ),
     profile: str = typer.Option(help=f"Profile name from {str(CONFIG_FILE_PATH)}"),
 ) -> None:
