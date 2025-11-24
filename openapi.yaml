@@ -71,6 +71,7 @@ paths:
         deprecated: false
         schema:
           type: string
+        example: my-example-service
         name: service
         in: path
         allowEmptyValue: false
@@ -110,6 +111,7 @@ paths:
         deprecated: false
         schema:
           type: string
+        example: my-example-task
         name: task
         in: path
         allowEmptyValue: false
@@ -174,6 +176,15 @@ components:
           type: boolean
           description: Force deployment of same image
           default: false
+          nullable: true
+        secret_arns:
+          title: Secret Arns
+          type: array
+          items:
+            pattern: arn:aws:secretsmanager:[a-z0-9-]+:[0-9]+:secret:.*
+            type: string
+          description: List of secret ARNs to attach to the service
+          default: []
           nullable: true
       description: ECS Service Deployment Request.
     TaskDeploymentRequest:
