@@ -2,5 +2,5 @@
 #MISE description="Build the binary"
 #MISE depends=["build:wheel"]
 uv sync --group build
-echo -e "from rubber_duck.main import app\n\napp()" >/tmp/rubber-duck.py
-uv run nuitka --onefile --remove-output -o dist/rubber-duck /tmp/rubber-duck.py
+echo -e "from maws.main import app\n\napp()" >/tmp/maws.py
+uv run nuitka --onefile --remove-output -o dist/maws /tmp/maws.py

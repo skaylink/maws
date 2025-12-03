@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-The latest versions of rubber-duck are supported.
+The latest versions of maws are supported.
 
 | Version | Supported          |
 | ------- | ------------------ |

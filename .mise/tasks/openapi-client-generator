@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 #MISE description="Generate OpenAPI client library"
-rm -rf ./src/rubber_duck/clients/*
-openapi-python-client generate --path ./openapi.yaml --output-path ./src/rubber_duck/clients --overwrite --meta uv
+rm -rf ./src/maws/clients/*
+openapi-python-client generate --path ./openapi.yaml --output-path ./src/maws/clients --overwrite --meta uv

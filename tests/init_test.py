@@ -1,4 +1,4 @@
-from rubber_duck import __app_name__, __version__
+from maws import __app_name__, __version__
 
 
 class TestAppConstants:

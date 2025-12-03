@@ -1,6 +1,6 @@
 import typer
 
-from rubber_duck.commands import ecs
+from maws.commands import ecs
 
 # commands
 ecs_commands = typer.Typer(no_args_is_help=True)

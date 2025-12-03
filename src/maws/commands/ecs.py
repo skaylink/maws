@@ -5,14 +5,14 @@ from http import HTTPStatus
 import typer
 from rich.console import Console
 
-from rubber_duck.clients.ecs_service_deployment_client.api.services import (
+from maws.clients.ecs_service_deployment_client.api.services import (
     get_service,
     patch_service,
 )
-from rubber_duck.clients.ecs_service_deployment_client.models import (
+from maws.clients.ecs_service_deployment_client.models import (
     ServiceDeploymentRequest,
 )
-from rubber_duck.config import CONFIG_FILE_PATH, get_settings
+from maws.config import CONFIG_FILE_PATH, get_settings
 
 app = typer.Typer(no_args_is_help=True)
 console = Console()

@@ -8,7 +8,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.text import Text
 
-from rubber_duck.clients.ecs_service_deployment_client import AuthenticatedClient
+from maws.clients.ecs_service_deployment_client import AuthenticatedClient
 
 from . import __app_name__, __version__
 
