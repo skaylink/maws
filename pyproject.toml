@@ -18,6 +18,9 @@ dependencies = [
   "pathspec>=0.12.1",
 ]
 
+[project.urls]
+Repository = "https://github.com/skaylink/rubber-duck"
+
 [project.scripts]
 rubber-duck = "rubber_duck.main:main"
 

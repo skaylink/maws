@@ -30,7 +30,7 @@ def deploy(
         [],
         help="List of secret ARNs to attach to the service",
     ),
-    profile: str = typer.Option(help=f"Profile name from {str(CONFIG_FILE_PATH)}"),
+    profile: str = typer.Option(None, help=f"Profile name from {str(CONFIG_FILE_PATH)}"),
 ) -> None:
     """
     ECS Service Deployment Request
