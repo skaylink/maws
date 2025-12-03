@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 #MISE description="Build the wheel"
 #MISE depends=["openapi-client-generator"]
-rm -rf src/rubber_duck/clients/{README.md,pyproject.toml,.ruff_cache,.gitignore}
+rm -rf src/maws/clients/{README.md,pyproject.toml,.ruff_cache,.gitignore}
 uv build --wheel

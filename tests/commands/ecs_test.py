@@ -5,7 +5,7 @@ from unittest.mock import Mock, call, patch
 import typer
 from typer.testing import CliRunner
 
-from rubber_duck.commands.ecs import app, deploy, status
+from maws.commands.ecs import app, deploy, status
 
 runner = CliRunner()
 
@@ -25,8 +25,8 @@ class TestECSCommands:
         assert "Usage:" in result.stdout
 
 
-@patch("rubber_duck.commands.ecs.get_settings")
-@patch("rubber_duck.commands.ecs.patch_service")
+@patch("maws.commands.ecs.get_settings")
+@patch("maws.commands.ecs.patch_service")
 def test_jowe(mock_patch_service, mock_get_settings, mock_response_failed, fake):
     mock_get_settings.return_value.api_client = Mock()
     mock_patch_service.sync_detailed.return_value = mock_response_failed()
@@ -43,10 +43,10 @@ def test_jowe(mock_patch_service, mock_get_settings, mock_response_failed, fake)
 
 class TestDeployCommand:
 
-    @patch("rubber_duck.commands.ecs.get_settings")
-    @patch("rubber_duck.commands.ecs.patch_service")
-    @patch("rubber_duck.commands.ecs.console")
-    @patch("rubber_duck.commands.ecs.status")
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.patch_service")
+    @patch("maws.commands.ecs.console")
+    @patch("maws.commands.ecs.status")
     def test_deploy_success_pending_status(
         self, mock_status, mock_console, mock_patch_service, mock_get_settings, fake
     ):
@@ -61,9 +61,9 @@ class TestDeployCommand:
         mock_patch_service.sync_detailed.assert_called_once()
         mock_console.print.assert_called()
 
-    @patch("rubber_duck.commands.ecs.get_settings")
-    @patch("rubber_duck.commands.ecs.patch_service")
-    @patch("rubber_duck.commands.ecs.console")
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.patch_service")
+    @patch("maws.commands.ecs.console")
     def test_deploy_success_non_pending_status(self, mock_console, mock_patch_service, mock_get_settings, fake):
         service_name = fake.word()
         image = fake.uuid4()
@@ -76,9 +76,9 @@ class TestDeployCommand:
         deploy(service_name, image)
         mock_patch_service.sync_detailed.assert_called_once()
 
-    @patch("rubber_duck.commands.ecs.get_settings")
-    @patch("rubber_duck.commands.ecs.patch_service")
-    @patch("rubber_duck.commands.ecs.console")
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.patch_service")
+    @patch("maws.commands.ecs.console")
     def test_deploy_failure_status(self, mock_console, mock_patch_service, mock_get_settings, fake):
         service_name = fake.word()
         image = fake.uuid4()
@@ -98,9 +98,9 @@ class TestDeployCommand:
         assert len(error_calls) > 0, "Expected an error message to be printed"
         assert isinstance(result, type(typer.Abort()))
 
-    @patch("rubber_duck.commands.ecs.get_settings")
-    @patch("rubber_duck.commands.ecs.patch_service")
-    @patch("rubber_duck.commands.ecs.console")
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.patch_service")
+    @patch("maws.commands.ecs.console")
     def test_deploy_exception_handling(self, mock_console, mock_patch_service, mock_get_settings, fake):
         service_name = fake.word()
         image = fake.uuid4()
@@ -111,8 +111,8 @@ class TestDeployCommand:
         assert isinstance(result, type(typer.Abort()))
         mock_console.print.assert_called()
 
-    @patch("rubber_duck.commands.ecs.get_settings")
-    @patch("rubber_duck.commands.ecs.patch_service")
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.patch_service")
     def test_deploy_with_various_service_names(self, mock_patch_service, mock_get_settings, fake):
         mock_response = Mock()
         mock_response.status_code = HTTPStatus.CREATED
@@ -129,14 +129,14 @@ class TestDeployCommand:
         image = fake.uuid4()
 
         for service_name in service_names:
-            with patch("rubber_duck.commands.ecs.console"):
+            with patch("maws.commands.ecs.console"):
                 deploy(service_name, image)
                 args, kwargs = mock_patch_service.sync_detailed.call_args
                 assert kwargs["body"].image == image
 
-    @patch("rubber_duck.commands.ecs.get_settings")
-    @patch("rubber_duck.commands.ecs.patch_service")
-    @patch("rubber_duck.commands.ecs.console")
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.patch_service")
+    @patch("maws.commands.ecs.console")
     def test_deploy_with_profile(self, mock_console, mock_patch_service, mock_get_settings, fake):
         service_name = fake.word()
         image = fake.uuid4()
@@ -147,16 +147,16 @@ class TestDeployCommand:
         mock_patch_service.sync_detailed.return_value = mock_response
         mock_get_settings.return_value.api_client = Mock()
 
-        with patch("rubber_duck.commands.ecs.status"):
+        with patch("maws.commands.ecs.status"):
             deploy(service_name, image, profile=profile)
             mock_get_settings.assert_called_with(profile)
 
 
 class TestStatusCommand:
 
-    @patch("rubber_duck.commands.ecs.get_settings")
-    @patch("rubber_duck.commands.ecs.get_service")
-    @patch("rubber_duck.commands.ecs.console")
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.get_service")
+    @patch("maws.commands.ecs.console")
     @patch("time.sleep")
     def test_status_successful_completion(self, mock_sleep, mock_console, mock_get_service, mock_get_settings, fake):
         service_name = fake.word()
@@ -183,9 +183,9 @@ class TestStatusCommand:
         )
         mock_console.print.assert_any_call(f"\nDeployment succeeded with status {HTTPStatus.OK}.", style="green")
 
-    @patch("rubber_duck.commands.ecs.get_settings")
-    @patch("rubber_duck.commands.ecs.get_service")
-    @patch("rubber_duck.commands.ecs.console")
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.get_service")
+    @patch("maws.commands.ecs.console")
     @patch("time.sleep")
     def test_status_with_custom_delay(self, mock_sleep, mock_console, mock_get_service, mock_get_settings, fake):
         service_name = fake.word()
@@ -200,9 +200,9 @@ class TestStatusCommand:
 
         mock_sleep.assert_not_called()
 
-    @patch("rubber_duck.commands.ecs.get_settings")
-    @patch("rubber_duck.commands.ecs.get_service")
-    @patch("rubber_duck.commands.ecs.console")
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.get_service")
+    @patch("maws.commands.ecs.console")
     @patch("time.sleep")
     def test_status_in_progress_then_failed(self, mock_sleep, mock_console, mock_get_service, mock_get_settings, fake):
         service_name = fake.word()
@@ -227,9 +227,9 @@ class TestStatusCommand:
             style="red",
         )
 
-    @patch("rubber_duck.commands.ecs.get_settings")
-    @patch("rubber_duck.commands.ecs.get_service")
-    @patch("rubber_duck.commands.ecs.console")
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.get_service")
+    @patch("maws.commands.ecs.console")
     def test_status_http_error(self, mock_console, mock_get_service, mock_get_settings, fake):
         service_name = fake.word()
 
@@ -243,9 +243,9 @@ class TestStatusCommand:
         assert isinstance(result, type(typer.Abort()))
         mock_console.print.assert_called()
 
-    @patch("rubber_duck.commands.ecs.get_settings")
-    @patch("rubber_duck.commands.ecs.get_service")
-    @patch("rubber_duck.commands.ecs.console")
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.get_service")
+    @patch("maws.commands.ecs.console")
     def test_status_exception_handling(self, mock_console, mock_get_service, mock_get_settings, fake):
         service_name = fake.word()
 
@@ -257,9 +257,9 @@ class TestStatusCommand:
         assert isinstance(result, type(typer.Abort()))
         mock_console.print.assert_called()
 
-    @patch("rubber_duck.commands.ecs.get_settings")
-    @patch("rubber_duck.commands.ecs.get_service")
-    @patch("rubber_duck.commands.ecs.console")
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.get_service")
+    @patch("maws.commands.ecs.console")
     @patch("time.sleep")
     def test_status_multiple_pending_cycles(self, mock_sleep, mock_console, mock_get_service, mock_get_settings, fake):
         service_name = fake.word()
@@ -296,9 +296,9 @@ class TestStatusCommand:
 
         for service_name in service_names:
             with (
-                patch("rubber_duck.commands.ecs.get_settings") as mock_get_settings,
-                patch("rubber_duck.commands.ecs.get_service") as mock_get_service,
-                patch("rubber_duck.commands.ecs.console"),
+                patch("maws.commands.ecs.get_settings") as mock_get_settings,
+                patch("maws.commands.ecs.get_service") as mock_get_service,
+                patch("maws.commands.ecs.console"),
             ):
 
                 mock_response = Mock()
@@ -313,9 +313,9 @@ class TestStatusCommand:
                     client=mock_get_settings.return_value.api_client,
                 )
 
-    @patch("rubber_duck.commands.ecs.get_settings")
-    @patch("rubber_duck.commands.ecs.get_service")
-    @patch("rubber_duck.commands.ecs.console")
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.get_service")
+    @patch("maws.commands.ecs.console")
     def test_status_with_profile(self, mock_console, mock_get_service, mock_get_settings, fake):
         service_name = fake.word()
         profile = "prod"
@@ -332,10 +332,10 @@ class TestStatusCommand:
 
 class TestECSCommandsCLI:
 
-    @patch("rubber_duck.commands.ecs.get_settings")
-    @patch("rubber_duck.commands.ecs.patch_service")
-    @patch("rubber_duck.commands.ecs.status")
-    @patch("rubber_duck.commands.ecs.console")
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.patch_service")
+    @patch("maws.commands.ecs.status")
+    @patch("maws.commands.ecs.console")
     def test_deploy_command_cli(self, mock_console, mock_status, mock_patch_service, mock_get_settings, fake):
         runner = CliRunner()
         service_name = fake.word()
@@ -351,9 +351,9 @@ class TestECSCommandsCLI:
 
         mock_patch_service.sync_detailed.assert_called_once()
 
-    @patch("rubber_duck.commands.ecs.get_settings")
-    @patch("rubber_duck.commands.ecs.get_service")
-    @patch("rubber_duck.commands.ecs.console")
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.get_service")
+    @patch("maws.commands.ecs.console")
     def test_status_command_cli(self, mock_console, mock_get_service, mock_get_settings, fake):
         runner = CliRunner()
         service_name = fake.word()
@@ -368,9 +368,9 @@ class TestECSCommandsCLI:
 
         mock_get_service.sync_detailed.assert_called_once()
 
-    @patch("rubber_duck.commands.ecs.get_settings")
-    @patch("rubber_duck.commands.ecs.get_service")
-    @patch("rubber_duck.commands.ecs.console")
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.get_service")
+    @patch("maws.commands.ecs.console")
     def test_status_command_cli_with_delay(self, mock_console, mock_get_service, mock_get_settings, fake):
         runner = CliRunner()
         service_name = fake.word()
@@ -396,9 +396,9 @@ class TestECSCommandsCLI:
 
         mock_get_service.sync_detailed.assert_called_once()
 
-    @patch("rubber_duck.commands.ecs.get_settings")
-    @patch("rubber_duck.commands.ecs.patch_service")
-    @patch("rubber_duck.commands.ecs.console")
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.patch_service")
+    @patch("maws.commands.ecs.console")
     def test_deploy_command_cli_with_profile(self, mock_console, mock_patch_service, mock_get_settings, fake):
         runner = CliRunner()
         service_name = fake.word()
@@ -410,6 +410,6 @@ class TestECSCommandsCLI:
         mock_patch_service.sync_detailed.return_value = mock_response
         mock_get_settings.return_value.api_client = Mock()
 
-        with patch("rubber_duck.commands.ecs.status"):
+        with patch("maws.commands.ecs.status"):
             runner.invoke(app, ["deploy", service_name, image, "--profile", profile])
             mock_get_settings.assert_called_with(profile)

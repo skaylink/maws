@@ -1,5 +1,5 @@
 [project]
-name = "rubber-duck"
+name = "maws"
 version = "25.12.0"
 description = "Workflow based API to run jobs"
 authors = [
@@ -19,10 +19,10 @@ dependencies = [
 ]
 
 [project.urls]
-Repository = "https://github.com/skaylink/rubber-duck"
+Repository = "https://github.com/skaylink/maws"
 
 [project.scripts]
-rubber-duck = "rubber_duck.main:main"
+maws = "maws.main:main"
 
 [dependency-groups]
 dev = [
@@ -43,7 +43,7 @@ requires = ["uv_build>=0.9.6,<0.10.0"]
 build-backend = "uv_build"
 
 [tool.uv.build-backend]
-module-name = "rubber_duck"
+module-name = "maws"
 
 [tool.pytest_env]
 ENDPOINT = "http://dummy-host"
@@ -54,4 +54,4 @@ filterwarnings = ["ignore::DeprecationWarning"]
 addopts = """-vv"""
 
 [tool.coverage.run]
-omit = ["tests/*", "src/rubber_duck/clients/*"]
+omit = ["tests/*", "src/maws/clients/*"]

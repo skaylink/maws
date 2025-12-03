@@ -8,5 +8,5 @@ __pycache__
 .pre-commit-trivy-cache
 .venv
 dist
-src/rubber_duck/clients
+src/maws/clients
 nuitka-crash-report.xml
