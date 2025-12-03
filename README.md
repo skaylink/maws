@@ -2,7 +2,7 @@
 
 <img style="float:right" src="./actor.png" height="250" title="Miau"></img>
 
-Microservice for ECS deployments
+Skaylink Managed AWS command line client.
 
 [![python](https://img.shields.io/badge/Python->=3.12-3776AB.svg?style=flat&logo=python&logoColor=white)][python-url]
 [![typer](https://img.shields.io/badge/FastAPI-Typer-009688.svg?style=flat&logo=fastapi&logoColor=white)][typer-url]
@@ -22,16 +22,16 @@ mise install
 
 ### Configuration
 
-Create a `~/.skaylink/profile.toml` file with your API configurations:
+You can either use environment variables `API_BASE_URL` and `API_ACCESS_TOKEN` or create a `~/.skaylink/profile.toml` file with your API access details:
 
 ```toml
 [profiles.dev]
-API_BASE_URL = "https://dev-api.example.com"
-API_ACCESS_TOKEN = "your-dev-token"
+API_BASE_URL = "<your-dev-deployment-endpoint>"
+API_ACCESS_TOKEN = "<your-dev-api-token>"
 
 [profiles.prod]
-API_BASE_URL = "https://prod-api.example.com"
-API_ACCESS_TOKEN = "your-prod-token"
+API_BASE_URL = "<your-prod-deployment-endpoint>"
+API_ACCESS_TOKEN = "<your-prod-api-token>"
 ```
 
 #### Run the following command to execute the client locally

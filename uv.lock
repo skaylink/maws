@@ -553,7 +553,7 @@ wheels = [
 
 [[package]]
 name = "rubber-duck"
-version = "0.0.1"
+version = "25.12.0"
 source = { editable = "." }
 dependencies = [
     { name = "mypy-extensions" },

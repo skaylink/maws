@@ -21,7 +21,7 @@ class TestMainApp:
         runner = CliRunner()
         result = runner.invoke(app, ["--help"])
         assert result.exit_code == 0
-        assert "Welcome to skaylink deployment client." in result.stdout
+        assert "Welcome to Skaylink client." in result.stdout
 
     def test_app_no_args_shows_help(self):
         runner = CliRunner()
@@ -61,7 +61,7 @@ class TestMainApp:
         for _ in range(3):
             result = runner.invoke(app, ["--help"])
             assert result.exit_code == 0
-            assert "Welcome to skaylink deployment client." in result.stdout
+            assert "Welcome to Skaylink client." in result.stdout
 
     def test_ecs_commands_configuration(self):
         runner = CliRunner()

@@ -1,6 +1,6 @@
 [project]
 name = "rubber-duck"
-version = "0.0.1"
+version = "25.12.0"
 description = "Workflow based API to run jobs"
 authors = [
   { name = "Jochen Werner", email = "jochen.werner@skaylink.com" },
@@ -17,6 +17,9 @@ dependencies = [
   "mypy-extensions>=1.1.0",
   "pathspec>=0.12.1",
 ]
+
+[project.urls]
+Repository = "https://github.com/skaylink/rubber-duck"
 
 [project.scripts]
 rubber-duck = "rubber_duck.main:main"
