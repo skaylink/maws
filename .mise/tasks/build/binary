@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 #MISE description="Build the binary"
 #MISE depends=["build:wheel"]
+tmpdir="$(mktemp -d)"
 uv sync --group build
-echo -e "from maws.main import app\n\napp()" >/tmp/maws.py
-uv run nuitka --onefile --remove-output -o dist/maws /tmp/maws.py
+echo -e "from maws.main import app\n\napp()" >"${tmpdir}"/cli.py
+uv run nuitka --onefile --remove-output -o dist/maws "${tmpdir}"/cli.py
+rm -rf "${tmpdir}"

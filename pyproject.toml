@@ -1,6 +1,6 @@
 [project]
 name = "maws"
-version = "25.12.1"
+version = "25.12.2"
 description = "Managed AWS command line client"
 authors = [
   { name = "Jochen Werner", email = "jochen.werner@skaylink.com" },

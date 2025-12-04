@@ -1,2 +1,2 @@
 __app_name__ = "maws"
-__version__ = "0.0.1"
+__version__ = "25.12.2"
