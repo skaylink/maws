@@ -1,7 +1,5 @@
 # maws
 
-<img style="float:right" src="./actor.png" height="250" title="Miau"></img>
-
 Skaylink Managed AWS command line client.
 
 [![python](https://img.shields.io/badge/Python->=3.12-3776AB.svg?style=flat&logo=python&logoColor=white)][python-url]
