@@ -59,7 +59,7 @@ class TestSettings:
             assert "name" in settings.meta
             assert "version" in settings.meta
             assert settings.meta["name"] == "maws"
-            assert settings.meta["version"] == "0.0.1"
+            assert settings.meta["version"] == "25.12.2"
 
     @patch("maws.config.AuthenticatedClient")
     def test_api_client_property(self, mock_client_class, fake, mock_env_vars):
@@ -215,7 +215,7 @@ class TestGetSettings:
                 assert settings.api_version == mock_vars["API_VERSION"]
                 assert settings.api_access_token == mock_vars["API_ACCESS_TOKEN"]
                 assert settings.meta["name"] == "maws"
-                assert settings.meta["version"] == "0.0.1"
+                assert settings.meta["version"] == "25.12.2"
 
     def test_get_settings_with_profile(self):
         with tempfile.NamedTemporaryFile(mode="w", suffix=".toml", delete=False) as f:

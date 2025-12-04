@@ -261,7 +261,7 @@ wheels = [
 
 [[package]]
 name = "maws"
-version = "25.12.1"
+version = "25.12.2"
 source = { editable = "." }
 dependencies = [
     { name = "mypy-extensions" },
