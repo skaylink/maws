@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 #MISE description="Create nfpm config"
 #MISE depends=["build:binary"]
+set -e
 IFS=, read -r -a _file < <(file -b dist/maws)
 case "${_file[1]}" in
     "x86-64")

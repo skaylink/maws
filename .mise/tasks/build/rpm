@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
 #MISE description="Build a rpm package"
 #MISE depends=["build:nfpm"]
+set -e
 nfpm package --config /tmp/nfpm.yaml --packager rpm
