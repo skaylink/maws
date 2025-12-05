@@ -3,11 +3,11 @@
 #MISE depends=["build:binary"]
 set -e
 IFS=, read -r -a _file < <(file -b dist/maws)
-case "${_file[1]}" in
+case "${_file[1]// /}" in
     "x86-64")
         architecture="amd64"
 	;;
-    "ARM aarch64")
+    "ARMaarch64")
         architecture="arm64"
 	;;
 esac
