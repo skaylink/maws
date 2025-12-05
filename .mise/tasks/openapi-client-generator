@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
 #MISE description="Generate OpenAPI client library"
+#MISE depends=["sync"]
 rm -rf ./src/maws/clients/*
 openapi-python-client generate --path ./openapi.yaml --output-path ./src/maws/clients --overwrite --meta uv

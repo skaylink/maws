@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+#MISE description="Create nfpm config"
+#MISE depends=["build:binary"]
+IFS=, read -r -a _file < <(file -b dist/maws)
+case "${_file[1]}" in
+    "x86-64")
+        architecture="amd64"
+	;;
+    "ARM aarch64")
+        architecture="arm64"
+	;;
+esac
+version="$(uv run python -c 'import maws; print(maws.__version__)')"
+cat >"/tmp/nfpm.yaml" <<EOF
+name: maws
+arch: ${architecture}
+version: ${version}
+version_schema: none
+maintainer: "Skaylink GmbH Managed AWS <managed-aws@support.skaylink.com>"
+description: Skaylink Managed AWS command line client.
+homepage: https://github.com/skaylink/maws
+contents:
+  - src: dist/maws
+    dst: /usr/bin/maws
+    file_info:
+      mode: 0755
+EOF

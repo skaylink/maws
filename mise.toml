@@ -2,6 +2,8 @@
 python = "3.12"
 uv = "latest"
 pre-commit = "latest"
+nfpm = "latest"
+ccache = "latest"
 
 [env]
 _.python.venv = { path = ".venv", create = true }
@@ -11,6 +13,10 @@ PYTHONPATH = "{{ cwd }}/.venv/lib/python3/site-packages/"
 python.uv_venv_auto = true
 python.compile = false
 experimental = true
+
+[tasks.sync]
+description = "Sync uv"
+run = "mise x -- uv sync"
 
 [tasks.pre-commit]
 description = "Install and pre-commit"
