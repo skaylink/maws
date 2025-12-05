@@ -10,15 +10,13 @@ Skaylink Managed AWS command line client.
 [![pre-commit](https://github.com/skaylink/maws/actions/workflows/pre-commit.yml/badge.svg)](https://github.com/skaylink/maws/actions/workflows/pre-commit.yml)
 [![tests](https://github.com/skaylink/maws/actions/workflows/tests.yml/badge.svg)](https://github.com/skaylink/maws/actions/workflows/tests.yml)
 
-## Setup local development stack
-
-### Install [mise][mise-url]
+## Installation
 
 ```bash
-mise install
+pip install maws
 ```
 
-### Configuration
+## Configuration
 
 You can either use environment variables `API_BASE_URL` and `API_ACCESS_TOKEN` or create a `~/.skaylink/profile.toml` file with your API access details:
 
@@ -32,7 +30,28 @@ API_BASE_URL = "<your-prod-deployment-endpoint>"
 API_ACCESS_TOKEN = "<your-prod-api-token>"
 ```
 
-#### Run the following command to execute the client locally
+## Usage
+
+### With profiles
+
+```bash
+maws ecs deploy <service-name> <image> --profile <some-profile>
+```
+
+### With environment variables
+
+```bash
+env API_BASE_URL=<your-deployment-endpoint> API_ACCESS_TOKEN=<your-api-token> maws ecs deploy <service-name> <image>
+```
+
+## Development
+
+### Install [mise][mise-url]
+
+```bash
+mise install
+```
+### Run commands
 
 ```bash
 # Using a specific profile
