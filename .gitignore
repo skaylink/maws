@@ -10,3 +10,5 @@ __pycache__
 dist
 src/maws/clients
 nuitka-crash-report.xml
+*.deb
+*.rpm

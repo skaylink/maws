@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#MISE description="Build a deb package"
+#MISE depends=["build:nfpm"]
+nfpm package --config /tmp/nfpm.yaml --packager deb

@@ -3,6 +3,10 @@
 #MISE depends=["build:wheel"]
 tmpdir="$(mktemp -d)"
 uv sync --group build
+if ! patchelf --help >/dev/null 2>&1; then
+    apt-get -qq update
+    apt-get -qqy install patchelf
+fi
 echo -e "from maws.main import app\n\napp()" >"${tmpdir}"/cli.py
 uv run nuitka --onefile --remove-output -o dist/maws "${tmpdir}"/cli.py
 rm -rf "${tmpdir}"
