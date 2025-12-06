@@ -3,7 +3,6 @@
 #MISE depends=["build:wheel"]
 set -e
 tmpdir="$(mktemp -d)"
-uv sync --group build
 deps=()
 if ! patchelf --help >/dev/null 2>&1; then
     deps+=("patchelf")
