@@ -3,7 +3,6 @@
 #MISE depends=["build:wheel"]
 set -e
 tmpdir="$(mktemp -d)"
-uv sync --group build
 deps=()
 if ! patchelf --help >/dev/null 2>&1; then
     deps+=("patchelf")
@@ -11,11 +10,20 @@ fi
 if ! gcc --help >/dev/null 2>&1; then
     deps+=("gcc")
 fi
+if ! ccache --help >/dev/null 2>&1; then
+    deps+=("ccache")
+fi
 if [[ -n "${deps[*]}" ]]; then
-    echo "Installing dependencies (${deps[*]}), please give sudo password if prompted"
-    sudo apt-get -qq update
+    echo "Installing dependencies (${deps[*]})"
+    if [ "${EUID}" -ne 0 ]; then
+      echo "Please provide sudo password"
+      aptget=("sudo" "apt-get" "-qqy")
+    else
+      aptget=("apt-get" "-qqy")
+    fi
+    "${aptget[@]}" update
     # shellcheck disable=SC2068
-    sudo apt-get -qqy install ${deps[@]}
+    "${aptget[@]}" install ${deps[@]}
 fi
 echo -e "from maws.main import app\n\napp()" >"${tmpdir}"/cli.py
 uv run nuitka --onefile --remove-output -o dist/maws "${tmpdir}"/cli.py
