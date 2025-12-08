@@ -15,7 +15,7 @@ experimental = true
 
 [tasks.sync]
 description = "Sync uv"
-run = "mise x -- uv sync --group dev"
+run = "mise x -- uv sync --group dev --group build"
 
 [tasks.pre-commit]
 description = "Install and pre-commit"
@@ -40,5 +40,5 @@ postinstall = ["mise pre-commit"]
 enter = [
   "mkdir -p {{ cwd }}/.venv/lib/python3",
   "ln -sf {{ cwd }}/.venv/lib/python3*/site-packages {{ cwd }}/.venv/lib/python3/site-packages",
-  "mise x -- uv sync --group dev",
+  "mise x -- uv sync --group dev --group build",
 ]
