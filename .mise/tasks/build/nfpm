@@ -2,6 +2,22 @@
 #MISE description="Create nfpm config"
 #MISE depends=["build:binary"]
 set -e
+deps=()
+if ! file --help >/dev/null 2>&1; then
+    deps+=("file")
+fi
+if [[ -n "${deps[*]}" ]]; then
+    echo "Installing dependencies (${deps[*]})"
+    if [ "${EUID}" -ne 0 ]; then
+      echo "Please provide sudo password"
+      aptget=("sudo" "apt-get" "-qqy")
+    else
+      aptget=("apt-get" "-qqy")
+    fi
+    "${aptget[@]}" update
+    # shellcheck disable=SC2068
+    "${aptget[@]}" install ${deps[@]}
+fi
 IFS=, read -r -a _file < <(file -b dist/maws)
 case "${_file[1]// /}" in
     "x86-64")
