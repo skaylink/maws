@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+#MISE description="Build a deb package"
+#MISE depends=["build:wheel", "build:docker:windows"]
+set -e
+docker run \
+    --rm \
+    -t \
+    -v "${PWD}":/source nuitka:wine \
+    sh -c 'echo -e "from maws.main import app\n\napp()" >cli.py; wine cmd /c pip install /source && wine python -m nuitka --assume-yes-for-downloads -o z:/builddir/maws.exe --onefile z:/builddir/cli.py && cp maws.exe /source'
