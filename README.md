@@ -1,6 +1,6 @@
-# maws
+# maws - Skaylink Managed AWS command line client
 
-Skaylink Managed AWS command line client.
+Provides tools for managed services.
 
 [![python](https://img.shields.io/badge/Python->=3.12-3776AB.svg?style=flat&logo=python&logoColor=white)][python-url]
 [![typer](https://img.shields.io/badge/FastAPI-Typer-009688.svg?style=flat&logo=fastapi&logoColor=white)][typer-url]
@@ -10,10 +10,30 @@ Skaylink Managed AWS command line client.
 [![pre-commit](https://github.com/skaylink/maws/actions/workflows/pre-commit.yml/badge.svg)](https://github.com/skaylink/maws/actions/workflows/pre-commit.yml)
 [![tests](https://github.com/skaylink/maws/actions/workflows/tests.yml/badge.svg)](https://github.com/skaylink/maws/actions/workflows/tests.yml)
 
+## Requirements
+
+- Skaylink Managed AWS infrastructure
+- Skaylink Managed AWS API user with token and proper permissions
+
 ## Installation
+
+### PIP
+
+You can install the package for Python directly via `pip`.
 
 ```bash
 pip install maws
+```
+
+### Binary
+
+You can download the [https://github.com/skaylink/maws/releases/latest](latest release binaries).
+
+Example:
+
+```bash
+sudo curl -Lo /usr/local/bin/maws https://github.com/skaylink/maws/releases/download/25.12.2/maws_$(dpkg --print-architecture)
+sudo chmod +x /usr/local/bin/maws
 ```
 
 ## Configuration
