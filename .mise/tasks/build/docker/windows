@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 #MISE description="Build the windows builder docker image"
 set -e
-docker buildx build --load -t nuitka:wine -f .docker/build/windows/Dockerfile .docker/build/windows
+docker buildx build --progress plain --load -t nuitka:wine -f .docker/build/windows/Dockerfile .docker/build/windows

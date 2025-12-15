@@ -14,10 +14,10 @@ function install_python {
     wget -q -O /builddir/gcc.zip \
         https://github.com/brechtsanders/winlibs_mingw/releases/download/14.2.0posix-19.1.1-12.0.0-msvcrt-r2/winlibs-x86_64-posix-seh-gcc-14.2.0-llvm-19.1.1-mingw-w64msvcrt-12.0.0-r2.zip
     mkdir -p /python/prefix/drive_c/users/"${whoami}"/AppData/Local/Nuitka/Nuitka/Cache/downloads/depends/x86_64
-    unzip /builddir/depends22_x86.zip -d /python/prefix/drive_c/users/"${whoami}"/AppData/Local/Nuitka/Nuitka/Cache/downloads/depends/x86_64
+    unzip -q /builddir/depends22_x86.zip -d /python/prefix/drive_c/users/"${whoami}"/AppData/Local/Nuitka/Nuitka/Cache/downloads/depends/x86_64
 
     mkdir -p /python/prefix/drive_c/users/"${whoami}"/AppData/Local/Nuitka/Nuitka/Cache/downloads/gcc/x86_64/14.2.0posix-19.1.1-12.0.0-msvcrt-r2
-    unzip /builddir/gcc.zip -d /python/prefix/drive_c/users/"${whoami}"/AppData/Local/Nuitka/Nuitka/Cache/downloads/gcc/x86_64/14.2.0posix-19.1.1-12.0.0-msvcrt-r2/
+    unzip -q /builddir/gcc.zip -d /python/prefix/drive_c/users/"${whoami}"/AppData/Local/Nuitka/Nuitka/Cache/downloads/gcc/x86_64/14.2.0posix-19.1.1-12.0.0-msvcrt-r2/
 
     echo -e "\033[0;32mInstalling Python\033[0m"
     wine cmd /c _python.exe \
@@ -47,7 +47,6 @@ winecfg /v win11 & while kill -0 $! 2> /dev/null; do sleep 1; done;
 
 echo -e "\033[0;32mRunning winetricks for win11\033[0m"
 winetricks -q --force win11 & while kill -0 $! 2> /dev/null; do sleep 1; done;
-
 
 install_python
 
