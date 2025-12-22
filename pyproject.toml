@@ -28,7 +28,7 @@ maws = "maws.main:main"
 dev = [
   "faker==38.2.0",
   "pytest==9.0.2",
-  "pytest-env==1.1.5",
+  "pytest-env==1.2.0",
   "pytest-cov==7.0.0",
 ]
 build = [
