@@ -21,7 +21,7 @@ class TestECSCommands:
     def test_app_no_args_shows_help(self):
         runner = CliRunner()
         result = runner.invoke(app, [])
-        assert result.exit_code == 0
+        assert result.exit_code == 2
         assert "Usage:" in result.stdout
 
 
