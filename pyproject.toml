@@ -32,7 +32,7 @@ dev = [
   "pytest-cov==7.0.0",
 ]
 build = [
-  "nuitka==2.8.9",
+  "nuitka==2.8.10",
 ]
 
 [tool.uv]
