@@ -1,6 +1,6 @@
 # maws - Skaylink Managed AWS command line client
 
-Provides tools for managed services.
+Provides tools for Skaylink managed services.
 
 [![python](https://img.shields.io/badge/Python->=3.12-3776AB.svg?style=flat&logo=python&logoColor=white)][python-url]
 [![typer](https://img.shields.io/badge/FastAPI-Typer-009688.svg?style=flat&logo=fastapi&logoColor=white)][typer-url]

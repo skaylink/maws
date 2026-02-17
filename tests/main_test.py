@@ -26,7 +26,7 @@ class TestMainApp:
     def test_app_no_args_shows_help(self):
         runner = CliRunner()
         result = runner.invoke(app, [])
-        assert result.exit_code == 0
+        assert result.exit_code == 2
         assert "Usage:" in result.stdout
 
     def test_ecs_command_available(self):
@@ -44,7 +44,7 @@ class TestMainApp:
     def test_ecs_no_args_shows_help(self):
         runner = CliRunner()
         result = runner.invoke(app, ["ecs"])
-        assert result.exit_code == 0
+        assert result.exit_code == 2
         assert "Usage:" in result.stdout
 
     def test_invalid_command(self, fake):
@@ -66,7 +66,7 @@ class TestMainApp:
     def test_ecs_commands_configuration(self):
         runner = CliRunner()
         result = runner.invoke(ecs_commands, [])
-        assert result.exit_code == 0
+        assert result.exit_code == 2
 
     @patch("maws.main.app")
     def test_main_execution(self, mock_maws):

@@ -1,40 +1,148 @@
-openapi: 3.0.0
+openapi: 3.1.0
 info:
   title: ECS Service Deployment
-  version: 25.8.0
+  version: 26.1.0
 servers:
-  - url: /
-    variables:
-      basePath:
-        default: v1
+  - url: ''
 paths:
-  /services/{service}:
+  /v1/tasks/{task}:
+    get:
+      tags:
+        - Tasks
+      summary: GET /v1/tasks/{task}
+      operationId: get_task
+      parameters:
+        - required: true
+          schema:
+            type: string
+            title: Task
+          name: task
+          in: path
+      responses:
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+        '200':
+          description: OK
+          content:
+            application/json: {}
+        '202':
+          description: Accepted
+          content:
+            application/json: {}
+        '401':
+          description: Unauthorized
+          content:
+            application/json: {}
+        '404':
+          description: Not Found
+          content:
+            application/json: {}
+        '417':
+          description: Expectation Failed
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    anyOf:
+                      - type: string
+                      - items: {}
+                        type: array
+                    title: Error
+                type: object
+                required:
+                  - error
+                title: ErrorResponse
+      security:
+        - ApiKeyAuth: []
+    patch:
+      tags:
+        - Tasks
+      summary: Update an ECS scheduled task.
+      description: Update an ECS scheduled task.
+      operationId: patch_task
+      parameters:
+        - required: true
+          schema:
+            type: string
+            title: Task
+          name: task
+          in: path
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskDeploymentRequest'
+        required: true
+      responses:
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+        '200':
+          description: OK
+          content:
+            application/json: {}
+        '401':
+          description: Unauthorized
+          content:
+            application/json: {}
+        '202':
+          description: Accepted
+          content:
+            application/json: {}
+        '417':
+          description: Expectation Failed
+          content:
+            application/json: {}
+      security:
+        - ApiKeyAuth: []
+  /v1/services/{service}:
     get:
       tags:
         - Services
-      summary: Get deployment status for ECS service.
-      description: Get deployment status for ECS service.
+      summary: GET /v1/services/{service}
       operationId: get_service
+      parameters:
+        - required: true
+          schema:
+            type: string
+            title: Service
+          name: service
+          in: path
       responses:
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
         '200':
           description: OK
+          content:
+            application/json: {}
         '202':
-          description: In progress
-        '403':
+          description: Accepted
+          content:
+            application/json: {}
+        '401':
           description: Unauthorized
           content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+            application/json: {}
         '404':
           description: Not Found
-        '417':
-          description: ExpectationFailed
           content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-      deprecated: false
+            application/json: {}
+        '417':
+          description: Expectation Failed
+          content:
+            application/json: {}
       security:
         - ApiKeyAuth: []
     patch:
@@ -43,95 +151,45 @@ paths:
       summary: Update an ECS service.
       description: Update an ECS service.
       operationId: patch_service
+      parameters:
+        - required: true
+          schema:
+            type: string
+            title: Service
+          name: service
+          in: path
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/ServiceDeploymentRequest'
-        required: false
+        required: true
       responses:
-        '201':
-          description: Created
-        '403':
-          description: Unauthorized
-        '404':
-          description: Not Found
-        '417':
-          description: ExpectationFailed
+        '422':
+          description: Validation Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-      deprecated: false
-      security:
-        - ApiKeyAuth: []
-    parameters:
-      - description: Service name
-        required: true
-        deprecated: false
-        schema:
-          type: string
-        example: my-example-service
-        name: service
-        in: path
-        allowEmptyValue: false
-        allowReserved: false
-  /tasks/{task}:
-    patch:
-      tags:
-        - Tasks
-      summary: Update an ECS scheduled task.
-      description: Update an ECS scheduled task.
-      operationId: patch_task
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TaskDeploymentRequest'
-        required: false
-      responses:
-        '201':
-          description: Created
-        '403':
-          description: Unauthorized
-        '404':
-          description: Not Found
-        '417':
-          description: ExpectationFailed
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-      deprecated: false
-      security:
-        - ApiKeyAuth: []
-    parameters:
-      - description: Task name
-        required: true
-        deprecated: false
-        schema:
-          type: string
-        example: my-example-task
-        name: task
-        in: path
-        allowEmptyValue: false
-        allowReserved: false
-  /services:
-    get:
-      tags:
-        - Services
-      summary: Get available ECS services.
-      description: Get available ECS services.
-      operationId: get_services
-      responses:
+                $ref: '#/components/schemas/HTTPValidationError'
         '200':
           description: OK
-        '403':
+          content:
+            application/json: {}
+        '401':
           description: Unauthorized
-      deprecated: false
+          content:
+            application/json: {}
+        '202':
+          description: Accepted
+          content:
+            application/json: {}
+        '417':
+          description: Expectation Failed
+          content:
+            application/json: {}
       security:
         - ApiKeyAuth: []
-  /tasks:
+  /v1/tasks:
     get:
       tags:
         - Tasks
@@ -139,70 +197,143 @@ paths:
       description: Get available ECS tasks.
       operationId: get_tasks
       responses:
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
         '200':
           description: OK
-        '403':
+          content:
+            application/json:
+              schema:
+                items:
+                  type: string
+                type: array
+                example:
+                  - task-a
+                  - task-b
+        '401':
           description: Unauthorized
-      deprecated: false
+          content:
+            application/json: {}
+      security:
+        - ApiKeyAuth: []
+  /v1/services:
+    get:
+      tags:
+        - Services
+      summary: Get available ECS services.
+      description: Get available ECS services.
+      operationId: get_services
+      responses:
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  type: string
+                type: array
+                example:
+                  - service-a
+                  - service-b
+        '401':
+          description: Unauthorized
+          content:
+            application/json: {}
       security:
         - ApiKeyAuth: []
 components:
   schemas:
-    ErrorResponse:
-      title: ErrorResponse
-      required:
-        - error
-      type: object
+    HTTPValidationError:
       properties:
-        error:
-          title: Error
-          anyOf:
-            - type: string
-            - type: array
-              items: {}
-    ServiceDeploymentRequest:
-      title: ServiceDeploymentRequest
-      required:
-        - image
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
       type: object
+      title: HTTPValidationError
+    ServiceDeploymentRequest:
       properties:
         image:
-          title: Image
-          minLength: 1
           type: string
+          minLength: 1
+          title: Image
           description: The container image to use for the service
         force:
+          anyOf:
+            - type: boolean
+            - type: 'null'
           title: Force
-          type: boolean
           description: Force deployment of same image
           default: false
-          nullable: true
         secret_arns:
+          anyOf:
+            - items:
+                type: string
+                pattern: arn:aws:secretsmanager:[a-z0-9-]+:[0-9]+:secret:.*
+              type: array
+            - type: 'null'
           title: Secret Arns
-          type: array
-          items:
-            pattern: arn:aws:secretsmanager:[a-z0-9-]+:[0-9]+:secret:.*
-            type: string
           description: List of secret ARNs to attach to the service
           default: []
-          nullable: true
-      description: ECS Service Deployment Request.
-    TaskDeploymentRequest:
-      title: TaskDeploymentRequest
+      type: object
       required:
         - image
-      type: object
+      title: ServiceDeploymentRequest
+      description: ECS Service Deployment Request.
+    TaskDeploymentRequest:
       properties:
         image:
-          title: Image
-          minLength: 1
           type: string
+          minLength: 1
+          title: Image
           description: The container image to use for the service
+      type: object
+      required:
+        - image
+      title: TaskDeploymentRequest
       description: 'ECS Task Deployment Request.
 
         Triggered by either scheduled or event pattern.'
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+              - type: string
+              - type: integer
+          type: array
+          title: Location
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+        - loc
+        - msg
+        - type
+      title: ValidationError
+    ResponseValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: ResponseValidationError
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
-      name: x-api-token
       in: header
+      name: x-api-token

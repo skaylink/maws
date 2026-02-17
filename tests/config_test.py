@@ -34,7 +34,7 @@ class TestDotEnvSettings:
 
     def test_dotenv_settings_missing_required_vars(self):
         with patch("os.getenv") as mock_getenv:
-            mock_getenv.side_effect = lambda key, default=None: default if key == "API_VERSION" else None
+            mock_getenv.side_effect = lambda key, default=None: (default if key == "API_VERSION" else None)
 
             try:
                 settings = DotEnvSettings()
@@ -71,34 +71,12 @@ class TestSettings:
             client = settings.api_client
 
             mock_client_class.assert_called_once_with(
-                base_url=f"{mock_env_vars['API_BASE_URL']}/{mock_env_vars['API_VERSION']}",
+                base_url=f"{mock_env_vars['API_BASE_URL']}",
                 token=mock_env_vars["API_ACCESS_TOKEN"],
                 auth_header_name="x-api-token",
                 prefix="",
             )
             assert client == mock_client_instance
-
-    @patch("maws.config.AuthenticatedClient")
-    def test_api_client_with_default_version(self, mock_client_class, fake):
-        mock_client_instance = Mock()
-        mock_client_class.return_value = mock_client_instance
-
-        mock_vars = {
-            "API_BASE_URL": fake.url(),
-            "API_ACCESS_TOKEN": fake.uuid4(),
-        }
-
-        with patch.dict(os.environ, mock_vars, clear=True):
-            settings = Settings()
-            settings.api_client
-
-            expected_base_url = f"{mock_vars['API_BASE_URL']}/v1"
-            mock_client_class.assert_called_once_with(
-                base_url=expected_base_url,
-                token=mock_vars["API_ACCESS_TOKEN"],
-                auth_header_name="x-api-token",
-                prefix="",
-            )
 
     def test_settings_with_fake_data(self, fake):
         for _ in range(5):
