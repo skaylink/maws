@@ -24,9 +24,15 @@ def show_config_help():
     help_text.append(str(CONFIG_FILE_PATH) + "\n\n", style="bold yellow")
     help_text.append("Example configuration:\n\n", style="white")
     help_text.append(
-        """[profiles.dev]
+        """
+[profiles.dev]
 API_BASE_URL = "https://dev-api.example.com"
 API_ACCESS_TOKEN = "your-dev-token"
+
+[profiles.test]
+API_BASE_URL = "https://test-api.example.com"
+API_CLIENT_ID = "test-client_id"
+API_CLIENT_SECRET = "test-client_secret"
 
 [profiles.prod]
 API_BASE_URL = "https://prod-api.example.com"
@@ -65,6 +71,8 @@ class DotEnvSettings(BaseSettings):
     api_version: str = os.getenv("API_VERSION", "v1")
     api_base_url: Optional[str] = os.getenv("API_BASE_URL")
     api_access_token: Optional[str] = os.getenv("API_ACCESS_TOKEN")
+    api_client_id: Optional[str] = os.getenv("API_CLIENT_ID")
+    api_client_secret: Optional[str] = os.getenv("API_CLIENT_SECRET")
 
 
 class Settings(DotEnvSettings):
@@ -83,8 +91,10 @@ class Settings(DotEnvSettings):
             data = load_profile(name=profile)
             cls.api_base_url = data.get("API_BASE_URL")
             cls.api_access_token = data.get("API_ACCESS_TOKEN")
-            if data.get("API_VERSION"):
-                cls.api_version = data.get("API_VERSION")
+            cls.api_client_id = data.get("API_CLIENT_ID")
+            cls.api_client_secret = data.get("API_CLIENT_SECRET")
+            if api_version := data.get("API_VERSION"):
+                cls.api_version = api_version
 
     @property
     def api_client(cls) -> AuthenticatedClient:

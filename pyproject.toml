@@ -55,3 +55,6 @@ addopts = """-vv"""
 
 [tool.coverage.run]
 omit = ["tests/*", "src/maws/clients/*"]
+
+[tool.black]
+line-length = 120
