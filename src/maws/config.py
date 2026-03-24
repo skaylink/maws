@@ -1,6 +1,5 @@
 import os
 import tomllib
-import warnings
 from pathlib import Path
 from typing import Optional
 
@@ -16,6 +15,7 @@ from maws.clients.ecs_service_deployment_client.models import TokenRequest
 from . import __app_name__, __version__
 
 CONFIG_FILE_PATH = Path.home() / ".skaylink" / "profile.toml"
+console = Console()
 
 
 def show_config_help():
@@ -111,10 +111,12 @@ class Settings(DotEnvSettings):
         has_client_credentials = cls.api_client_id is not None and cls.api_client_secret is not None
 
         if has_token and has_client_credentials:
-            warnings.warn(
-                "Both api_access_key and client credentials (api_client_id/api_client_secret) are configured. "
-                "Using api_access_key. Remove one to silence this warning.",
-                stacklevel=2,
+            console.print(
+                """
+                Both API_ACCESS_KEY and client credentials (API_CLIENT_ID/API_CLIENT_SECRET) are configured.
+                Prefering API_ACCESS_KEY. Remove either one to remove this warning.
+                """,
+                style="yellow",
             )
 
         if has_token:
@@ -133,7 +135,7 @@ class Settings(DotEnvSettings):
                 client=unauthenticated_client,
                 body=TokenRequest(client_id=cls.api_client_id, client_secret=cls.api_client_secret),
             )
-            if response.status_code != 200:
+            if response.status_code != 201:
                 raise SystemExit(f"Failed to obtain bearer token: {response.status_code}")
             data = json.loads(response.content)
             token = data if isinstance(data, str) else data["access_token"]

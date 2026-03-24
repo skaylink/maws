@@ -289,10 +289,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-        '200':
-          description: OK
+        '201':
+          description: Created
           content:
-            application/json: {}
+            application/json:
+              schema:
+                properties:
+                  access_token:
+                    type: string
+                    title: Access Token
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                  expired_at:
+                    type: string
+                    title: Expired At
+                    example: '2026-03-24T12:54:13Z'
+                type: object
+                required:
+                  - access_token
+                  - expired_at
+                title: TokenResponse
         '401':
           description: Unauthorized
           content:

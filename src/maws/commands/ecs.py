@@ -9,9 +9,7 @@ from maws.clients.ecs_service_deployment_client.api.services import (
     get_service,
     patch_service,
 )
-from maws.clients.ecs_service_deployment_client.models import (
-    ServiceDeploymentRequest,
-)
+from maws.clients.ecs_service_deployment_client.models import ServiceDeploymentRequest
 from maws.config import CONFIG_FILE_PATH, get_settings
 
 app = typer.Typer(no_args_is_help=True)
