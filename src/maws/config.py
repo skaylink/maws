@@ -30,7 +30,7 @@ def show_config_help():
         """
 [profiles.dev]
 API_BASE_URL = "https://dev-api.example.com"
-API_ACCESS_TOKEN = "your-dev-token"
+API_ACCESS_KEY = "your-dev-token"
 
 [profiles.test]
 API_BASE_URL = "https://test-api.example.com"
@@ -39,7 +39,7 @@ API_CLIENT_SECRET = "test-client_secret"
 
 [profiles.prod]
 API_BASE_URL = "https://prod-api.example.com"
-API_ACCESS_TOKEN = "your-prod-token"
+API_ACCESS_KEY = "your-prod-token"
 """,
         style="green",
     )
@@ -73,7 +73,7 @@ def load_profile(name: str = None) -> dict:
 class DotEnvSettings(BaseSettings):
     api_version: str = os.getenv("API_VERSION", "v1")
     api_base_url: Optional[str] = os.getenv("API_BASE_URL")
-    api_access_token: Optional[str] = os.getenv("API_ACCESS_TOKEN")
+    api_access_key: Optional[str] = os.getenv("API_ACCESS_KEY")
     api_client_id: Optional[str] = os.getenv("API_CLIENT_ID")
     api_client_secret: Optional[str] = os.getenv("API_CLIENT_SECRET")
 
@@ -93,7 +93,7 @@ class Settings(DotEnvSettings):
         if profile:
             data = load_profile(name=profile)
             cls.api_base_url = data.get("API_BASE_URL")
-            cls.api_access_token = data.get("API_ACCESS_TOKEN")
+            cls.api_access_key = data.get("API_ACCESS_KEY")
             cls.api_client_id = data.get("API_CLIENT_ID")
             cls.api_client_secret = data.get("API_CLIENT_SECRET")
             if api_version := data.get("API_VERSION"):
@@ -107,20 +107,20 @@ class Settings(DotEnvSettings):
         Returns:
             AuthenticatedClient
         """
-        has_token = cls.api_access_token is not None
+        has_token = cls.api_access_key is not None
         has_client_credentials = cls.api_client_id is not None and cls.api_client_secret is not None
 
         if has_token and has_client_credentials:
             warnings.warn(
-                "Both api_access_token and client credentials (api_client_id/api_client_secret) are configured. "
-                "Using api_access_token. Remove one to silence this warning.",
+                "Both api_access_key and client credentials (api_client_id/api_client_secret) are configured. "
+                "Using api_access_key. Remove one to silence this warning.",
                 stacklevel=2,
             )
 
         if has_token:
             return AuthenticatedClient(
                 base_url=f"{cls.api_base_url}",
-                token=cls.api_access_token,
+                token=cls.api_access_key,
                 auth_header_name="x-api-key",
                 prefix="",
             )
@@ -142,7 +142,7 @@ class Settings(DotEnvSettings):
                 token=token,
             )
 
-        raise SystemExit("No authentication configured. Set api_access_token or api_client_id/api_client_secret.")
+        raise SystemExit("No authentication configured. Set api_access_key or api_client_id/api_client_secret.")
 
 
 def get_settings(profile: str = None):
