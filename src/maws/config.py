@@ -107,7 +107,7 @@ class Settings(DotEnvSettings):
         return AuthenticatedClient(
             base_url=f"{cls.api_base_url}",
             token=cls.api_access_token,
-            auth_header_name="x-api-token",
+            auth_header_name="x-api-key",
             prefix="",
         )
 

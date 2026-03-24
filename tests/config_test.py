@@ -73,7 +73,7 @@ class TestSettings:
             mock_client_class.assert_called_once_with(
                 base_url=f"{mock_env_vars['API_BASE_URL']}",
                 token=mock_env_vars["API_ACCESS_TOKEN"],
-                auth_header_name="x-api-token",
+                auth_header_name="x-api-key",
                 prefix="",
             )
             assert client == mock_client_instance

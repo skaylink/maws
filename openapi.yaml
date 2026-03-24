@@ -269,6 +269,34 @@ paths:
       security:
         - ApiKeyAuth: []
         - OAuth2ClientCredentials: []
+  /token:
+    post:
+      tags:
+        - Authentication
+      summary: Obtain token using machine credentials (client_id + client_secret).
+      description: Obtain token.
+      operationId: post_token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRequest'
+        required: true
+      responses:
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+        '200':
+          description: OK
+          content:
+            application/json: {}
+        '401':
+          description: Unauthorized
+          content:
+            application/json: {}
 components:
   schemas:
     HTTPValidationError:
@@ -323,6 +351,19 @@ components:
       description: 'ECS Task Deployment Request.
 
         Triggered by either scheduled or event pattern.'
+    TokenRequest:
+      properties:
+        client_id:
+          type: string
+          title: Client Id
+        client_secret:
+          type: string
+          title: Client Secret
+      type: object
+      required:
+        - client_id
+        - client_secret
+      title: TokenRequest
     ValidationError:
       properties:
         loc:
@@ -354,7 +395,7 @@ components:
     ApiKeyAuth:
       type: apiKey
       in: header
-      name: x-api-token
+      name: x-api-key
     OAuth2ClientCredentials:
       type: oauth2
       flows:
