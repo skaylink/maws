@@ -1,7 +1,6 @@
 import json
 import os
 import tempfile
-import warnings
 from pathlib import Path
 from unittest.mock import Mock, patch
 
@@ -115,7 +114,8 @@ API_VERSION = "v2"
         os.unlink(f.name)
 
     @patch("maws.config.AuthenticatedClient")
-    def test_api_client_warns_when_both_token_and_client_credentials(self, mock_client_class):
+    @patch("maws.config.console")
+    def test_api_client_warns_when_both_token_and_client_credentials(self, mock_console, mock_client_class):
         mock_client_class.return_value = Mock()
         env_vars = {
             "API_BASE_URL": "https://example.com",
@@ -125,18 +125,16 @@ API_VERSION = "v2"
         }
         with patch.dict(os.environ, env_vars):
             settings = Settings()
-            with warnings.catch_warnings(record=True) as w:
-                warnings.simplefilter("always")
-                settings.api_client
-                assert len(w) == 1
-                assert "api_access_key" in str(w[0].message)
+            settings.api_client
+            mock_console.print.assert_called_once()
+            assert "API_ACCESS_KEY" in str(mock_console.print.call_args)
 
     @patch("maws.config.post_token")
     @patch("maws.config.Client")
     @patch("maws.config.AuthenticatedClient")
     def test_api_client_with_client_credentials(self, mock_auth_client, mock_client, mock_post_token):
         mock_response = Mock()
-        mock_response.status_code = 200
+        mock_response.status_code = 201
         mock_response.content = json.dumps({"access_token": "bearer-token"})
         mock_post_token.sync_detailed.return_value = mock_response
 
@@ -166,7 +164,7 @@ API_VERSION = "v2"
     @patch("maws.config.AuthenticatedClient")
     def test_api_client_client_credentials_plain_string_token(self, mock_auth_client, mock_client, mock_post_token):
         mock_response = Mock()
-        mock_response.status_code = 200
+        mock_response.status_code = 201
         mock_response.content = json.dumps("plain-token")
         mock_post_token.sync_detailed.return_value = mock_response
 

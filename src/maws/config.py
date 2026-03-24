@@ -84,6 +84,8 @@ class Settings(DotEnvSettings):
         "version": __version__,
     }
 
+    _api_client: AuthenticatedClient = None
+
     def __init__(cls, profile: str = None):
         """
         Args:
@@ -107,6 +109,9 @@ class Settings(DotEnvSettings):
         Returns:
             AuthenticatedClient
         """
+        if cls._api_client is not None:
+            return cls._api_client
+
         has_token = cls.api_access_key is not None
         has_client_credentials = cls.api_client_id is not None and cls.api_client_secret is not None
 
@@ -120,12 +125,13 @@ class Settings(DotEnvSettings):
             )
 
         if has_token:
-            return AuthenticatedClient(
+            cls._api_client = AuthenticatedClient(
                 base_url=f"{cls.api_base_url}",
                 token=cls.api_access_key,
                 auth_header_name="x-api-key",
                 prefix="",
             )
+            return cls._api_client
 
         if has_client_credentials:
             import json
@@ -139,10 +145,11 @@ class Settings(DotEnvSettings):
                 raise SystemExit(f"Failed to obtain bearer token: {response.status_code}")
             data = json.loads(response.content)
             token = data if isinstance(data, str) else data["access_token"]
-            return AuthenticatedClient(
+            cls._api_client = AuthenticatedClient(
                 base_url=f"{cls.api_base_url}",
                 token=token,
             )
+            return cls._api_client
 
         raise SystemExit("No authentication configured. Set api_access_key or api_client_id/api_client_secret.")
 
