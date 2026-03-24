@@ -1,5 +1,6 @@
 import os
 import tomllib
+import warnings
 from pathlib import Path
 from typing import Optional
 
@@ -8,7 +9,9 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.text import Text
 
-from maws.clients.ecs_service_deployment_client import AuthenticatedClient
+from maws.clients.ecs_service_deployment_client import AuthenticatedClient, Client
+from maws.clients.ecs_service_deployment_client.api.authentication import post_token
+from maws.clients.ecs_service_deployment_client.models import TokenRequest
 
 from . import __app_name__, __version__
 
@@ -104,12 +107,42 @@ class Settings(DotEnvSettings):
         Returns:
             AuthenticatedClient
         """
-        return AuthenticatedClient(
-            base_url=f"{cls.api_base_url}",
-            token=cls.api_access_token,
-            auth_header_name="x-api-key",
-            prefix="",
-        )
+        has_token = cls.api_access_token is not None
+        has_client_credentials = cls.api_client_id is not None and cls.api_client_secret is not None
+
+        if has_token and has_client_credentials:
+            warnings.warn(
+                "Both api_access_token and client credentials (api_client_id/api_client_secret) are configured. "
+                "Using api_access_token. Remove one to silence this warning.",
+                stacklevel=2,
+            )
+
+        if has_token:
+            return AuthenticatedClient(
+                base_url=f"{cls.api_base_url}",
+                token=cls.api_access_token,
+                auth_header_name="x-api-key",
+                prefix="",
+            )
+
+        if has_client_credentials:
+            import json
+
+            unauthenticated_client = Client(base_url=f"{cls.api_base_url}")
+            response = post_token.sync_detailed(
+                client=unauthenticated_client,
+                body=TokenRequest(client_id=cls.api_client_id, client_secret=cls.api_client_secret),
+            )
+            if response.status_code != 200:
+                raise SystemExit(f"Failed to obtain bearer token: {response.status_code}")
+            data = json.loads(response.content)
+            token = data if isinstance(data, str) else data["access_token"]
+            return AuthenticatedClient(
+                base_url=f"{cls.api_base_url}",
+                token=token,
+            )
+
+        raise SystemExit("No authentication configured. Set api_access_token or api_client_id/api_client_secret.")
 
 
 def get_settings(profile: str = None):
