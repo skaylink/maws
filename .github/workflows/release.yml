@@ -13,7 +13,6 @@ jobs:
     runs-on: ${{ matrix.arch.runner }}
     env:
       DEBIAN_FRONTEND: noninteractive
-      DEBUG: ${{ runner.debug }}
     strategy:
       matrix:
         arch:
@@ -42,6 +41,8 @@ jobs:
         run: mise install
       - name: Build binary for ${{ matrix.arch.name }}
         run: mise build:binary
+        env:
+          DEBUG: ${{ runner.debug }}
       - name: Release assets
         uses: softprops/action-gh-release@v2
         with:

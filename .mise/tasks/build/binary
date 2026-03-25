@@ -44,4 +44,5 @@ if [[ -n "${deps[*]}" ]]; then
 fi
 echo -e "from maws.main import app\n\napp()" >"${tmpdir}"/cli.py
 uv run nuitka --onefile --remove-output -o "dist/maws_$(arch)" "${tmpdir}"/cli.py
+"dist/maws_$(arch)" --help
 rm -rf "${tmpdir}"
