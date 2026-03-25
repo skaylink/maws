@@ -25,9 +25,9 @@ You can install the package for Python directly via `pip`.
 pip install maws
 ```
 
-### Binary
+### Linux Binary
 
-You can download the [https://github.com/skaylink/maws/releases/latest](latest release binaries).
+You can download the [latest release binaries](https://github.com/skaylink/maws/releases/latest]).
 
 Example:
 
@@ -35,6 +35,10 @@ Example:
 sudo curl -Lo /usr/local/bin/maws https://github.com/skaylink/maws/releases/download/25.12.2/maws_$(arch)
 sudo chmod +x /usr/local/bin/maws
 ```
+
+### Windows EXE
+
+You can download the [latest release exe](https://github.com/skaylink/maws/releases/latest]).
 
 ## Configuration
 
