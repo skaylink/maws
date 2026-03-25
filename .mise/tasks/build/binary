@@ -2,6 +2,11 @@
 #MISE description="Build the binary"
 #MISE depends=["build:wheel"]
 set -e
+
+if [ "${DEBUG:-0}" -eq 1 ]; then
+    set -x
+fi
+
 tmpdir="$(mktemp -d)"
 deps=()
 if ! patchelf --help >/dev/null 2>&1; then
@@ -28,7 +33,7 @@ if [[ -n "${deps[*]}" ]]; then
       	    cmd+=("-y")
             deps+=("libatomic-static")
 	    ;;
-        debian)
+        debian|ubuntu)
       	    cmd+=("apt-get")
       	    cmd+=("-y")
             "${cmd[@]}" update
