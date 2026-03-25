@@ -13,7 +13,7 @@ Provides tools for Skaylink managed services.
 ## Requirements
 
 - Skaylink Managed AWS infrastructure
-- Skaylink Managed AWS API user with token and proper permissions
+- Skaylink Managed AWS API machine credentials (`API_CLIENT_ID` + `API_CLIENT_SECRET`) or user token (`API_ACCESS_KEY`) and proper permissions
 
 ## Installation
 
@@ -38,16 +38,17 @@ sudo chmod +x /usr/local/bin/maws
 
 ## Configuration
 
-You can either use environment variables `API_BASE_URL` and `API_ACCESS_TOKEN` or create a `~/.skaylink/profile.toml` file with your API access details:
+You can either use environment variables `API_BASE_URL` and `API_CLIENT_ID` + `API_CLIENT_SECRET` or `API_ACCESS_KEY` or create a `~/.skaylink/profile.toml` file with your API access details:
 
 ```toml
-[profiles.dev]
+[profiles.dev] # use a personalized user token
 API_BASE_URL = "<your-dev-deployment-endpoint>"
-API_ACCESS_TOKEN = "<your-dev-api-token>"
+API_ACCESS_KEY = "<your-dev-api-token>"
 
-[profiles.prod]
+[profiles.prod] # use a non-personal machine client
 API_BASE_URL = "<your-prod-deployment-endpoint>"
-API_ACCESS_TOKEN = "<your-prod-api-token>"
+API_CLIENT_ID = "<your-prod-deployment-id>"
+API_CLIENT_SECRET = "<your-prod-deployment-secret>"
 ```
 
 ## Usage
@@ -61,7 +62,7 @@ maws ecs deploy <service-name> <image> --profile <some-profile>
 ### With environment variables
 
 ```bash
-env API_BASE_URL=<your-deployment-endpoint> API_ACCESS_TOKEN=<your-api-token> maws ecs deploy <service-name> <image>
+env API_BASE_URL=<your-deployment-endpoint> API_ACCESS_KEY=<your-api-token> maws ecs deploy <service-name> <image>
 ```
 
 ## Development

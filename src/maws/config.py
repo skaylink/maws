@@ -8,11 +8,14 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.text import Text
 
-from maws.clients.ecs_service_deployment_client import AuthenticatedClient
+from maws.clients.ecs_service_deployment_client import AuthenticatedClient, Client
+from maws.clients.ecs_service_deployment_client.api.authentication import post_token
+from maws.clients.ecs_service_deployment_client.models import TokenRequest
 
 from . import __app_name__, __version__
 
 CONFIG_FILE_PATH = Path.home() / ".skaylink" / "profile.toml"
+console = Console()
 
 
 def show_config_help():
@@ -24,13 +27,19 @@ def show_config_help():
     help_text.append(str(CONFIG_FILE_PATH) + "\n\n", style="bold yellow")
     help_text.append("Example configuration:\n\n", style="white")
     help_text.append(
-        """[profiles.dev]
+        """
+[profiles.dev]
 API_BASE_URL = "https://dev-api.example.com"
-API_ACCESS_TOKEN = "your-dev-token"
+API_ACCESS_KEY = "your-dev-token"
+
+[profiles.test]
+API_BASE_URL = "https://test-api.example.com"
+API_CLIENT_ID = "test-client_id"
+API_CLIENT_SECRET = "test-client_secret"
 
 [profiles.prod]
 API_BASE_URL = "https://prod-api.example.com"
-API_ACCESS_TOKEN = "your-prod-token"
+API_ACCESS_KEY = "your-prod-token"
 """,
         style="green",
     )
@@ -64,7 +73,9 @@ def load_profile(name: str = None) -> dict:
 class DotEnvSettings(BaseSettings):
     api_version: str = os.getenv("API_VERSION", "v1")
     api_base_url: Optional[str] = os.getenv("API_BASE_URL")
-    api_access_token: Optional[str] = os.getenv("API_ACCESS_TOKEN")
+    api_access_key: Optional[str] = os.getenv("API_ACCESS_KEY")
+    api_client_id: Optional[str] = os.getenv("API_CLIENT_ID")
+    api_client_secret: Optional[str] = os.getenv("API_CLIENT_SECRET")
 
 
 class Settings(DotEnvSettings):
@@ -72,6 +83,8 @@ class Settings(DotEnvSettings):
         "name": __app_name__,
         "version": __version__,
     }
+
+    _api_client: AuthenticatedClient = None
 
     def __init__(cls, profile: str = None):
         """
@@ -82,9 +95,11 @@ class Settings(DotEnvSettings):
         if profile:
             data = load_profile(name=profile)
             cls.api_base_url = data.get("API_BASE_URL")
-            cls.api_access_token = data.get("API_ACCESS_TOKEN")
-            if data.get("API_VERSION"):
-                cls.api_version = data.get("API_VERSION")
+            cls.api_access_key = data.get("API_ACCESS_KEY")
+            cls.api_client_id = data.get("API_CLIENT_ID")
+            cls.api_client_secret = data.get("API_CLIENT_SECRET")
+            if api_version := data.get("API_VERSION"):
+                cls.api_version = api_version
 
     @property
     def api_client(cls) -> AuthenticatedClient:
@@ -94,12 +109,49 @@ class Settings(DotEnvSettings):
         Returns:
             AuthenticatedClient
         """
-        return AuthenticatedClient(
-            base_url=f"{cls.api_base_url}",
-            token=cls.api_access_token,
-            auth_header_name="x-api-token",
-            prefix="",
-        )
+        if cls._api_client is not None:
+            return cls._api_client
+
+        has_token = cls.api_access_key is not None
+        has_client_credentials = cls.api_client_id is not None and cls.api_client_secret is not None
+
+        if has_token and has_client_credentials:
+            console.print(
+                """
+                Both API_ACCESS_KEY and client credentials (API_CLIENT_ID/API_CLIENT_SECRET) are configured.
+                Prefering API_ACCESS_KEY. Remove either one to remove this warning.
+                """,
+                style="yellow",
+            )
+
+        if has_token:
+            cls._api_client = AuthenticatedClient(
+                base_url=f"{cls.api_base_url}",
+                token=cls.api_access_key,
+                auth_header_name="x-api-key",
+                prefix="",
+            )
+            return cls._api_client
+
+        if has_client_credentials:
+            import json
+
+            unauthenticated_client = Client(base_url=f"{cls.api_base_url}")
+            response = post_token.sync_detailed(
+                client=unauthenticated_client,
+                body=TokenRequest(client_id=cls.api_client_id, client_secret=cls.api_client_secret),
+            )
+            if response.status_code != 201:
+                raise SystemExit(f"Failed to obtain bearer token: {response.status_code}")
+            data = json.loads(response.content)
+            token = data if isinstance(data, str) else data["access_token"]
+            cls._api_client = AuthenticatedClient(
+                base_url=f"{cls.api_base_url}",
+                token=token,
+            )
+            return cls._api_client
+
+        raise SystemExit("No authentication configured. Set api_access_key or api_client_id/api_client_secret.")
 
 
 def get_settings(profile: str = None):

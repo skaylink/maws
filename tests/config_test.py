@@ -1,3 +1,4 @@
+import json
 import os
 import tempfile
 from pathlib import Path
@@ -21,12 +22,12 @@ class TestDotEnvSettings:
             settings = DotEnvSettings()
             assert settings.api_base_url == mock_env_vars["API_BASE_URL"]
             assert settings.api_version == mock_env_vars["API_VERSION"]
-            assert settings.api_access_token == mock_env_vars["API_ACCESS_TOKEN"]
+            assert settings.api_access_key == mock_env_vars["API_ACCESS_KEY"]
 
     def test_dotenv_settings_default_api_version(self, fake):
         mock_vars = {
             "API_BASE_URL": fake.url(),
-            "API_ACCESS_TOKEN": fake.uuid4(),
+            "API_ACCESS_KEY": fake.uuid4(),
         }
         with patch.dict(os.environ, mock_vars, clear=True):
             settings = DotEnvSettings()
@@ -39,7 +40,7 @@ class TestDotEnvSettings:
             try:
                 settings = DotEnvSettings()
                 assert settings.api_base_url is not None or settings.api_base_url == ""
-                assert settings.api_access_token is not None or settings.api_access_token == ""
+                assert settings.api_access_key is not None or settings.api_access_key == ""
                 assert settings.api_version == "v1"
             except Exception:
                 pass
@@ -72,8 +73,8 @@ class TestSettings:
 
             mock_client_class.assert_called_once_with(
                 base_url=f"{mock_env_vars['API_BASE_URL']}",
-                token=mock_env_vars["API_ACCESS_TOKEN"],
-                auth_header_name="x-api-token",
+                token=mock_env_vars["API_ACCESS_KEY"],
+                auth_header_name="x-api-key",
                 prefix="",
             )
             assert client == mock_client_instance
@@ -83,14 +84,14 @@ class TestSettings:
             mock_vars = {
                 "API_BASE_URL": fake.url(),
                 "API_VERSION": fake.word(),
-                "API_ACCESS_TOKEN": fake.uuid4(),
+                "API_ACCESS_KEY": fake.uuid4(),
             }
 
             with patch.dict(os.environ, mock_vars):
                 settings = Settings()
                 assert settings.api_base_url == mock_vars["API_BASE_URL"]
                 assert settings.api_version == mock_vars["API_VERSION"]
-                assert settings.api_access_token == mock_vars["API_ACCESS_TOKEN"]
+                assert settings.api_access_key == mock_vars["API_ACCESS_KEY"]
 
     def test_settings_with_profile(self):
         with tempfile.NamedTemporaryFile(mode="w", suffix=".toml", delete=False) as f:
@@ -98,7 +99,7 @@ class TestSettings:
                 """
 [profiles.test]
 API_BASE_URL = "https://test-api.example.com"
-API_ACCESS_TOKEN = "test-token"
+API_ACCESS_KEY = "test-token"
 API_VERSION = "v2"
 """
             )
@@ -107,10 +108,82 @@ API_VERSION = "v2"
             with patch("maws.config.CONFIG_FILE_PATH", Path(f.name)):
                 settings = Settings(profile="test")
                 assert settings.api_base_url == "https://test-api.example.com"
-                assert settings.api_access_token == "test-token"
+                assert settings.api_access_key == "test-token"
                 assert settings.api_version == "v2"
 
         os.unlink(f.name)
+
+    @patch("maws.config.AuthenticatedClient")
+    @patch("maws.config.console")
+    def test_api_client_warns_when_both_token_and_client_credentials(self, mock_console, mock_client_class):
+        mock_client_class.return_value = Mock()
+        env_vars = {
+            "API_BASE_URL": "https://example.com",
+            "API_ACCESS_KEY": "token",
+            "API_CLIENT_ID": "client-id",
+            "API_CLIENT_SECRET": "client-secret",
+        }
+        with patch.dict(os.environ, env_vars):
+            settings = Settings()
+            settings.api_client
+            mock_console.print.assert_called_once()
+            assert "API_ACCESS_KEY" in str(mock_console.print.call_args)
+
+    @patch("maws.config.post_token")
+    @patch("maws.config.Client")
+    @patch("maws.config.AuthenticatedClient")
+    def test_api_client_with_client_credentials(self, mock_auth_client, mock_client, mock_post_token):
+        mock_response = Mock()
+        mock_response.status_code = 201
+        mock_response.content = json.dumps({"access_token": "bearer-token"})
+        mock_post_token.sync_detailed.return_value = mock_response
+
+        env_vars = {"API_BASE_URL": "https://example.com", "API_CLIENT_ID": "cid", "API_CLIENT_SECRET": "csecret"}
+        with patch.dict(os.environ, env_vars, clear=True):
+            settings = Settings()
+            settings.api_access_key = None
+            settings.api_client
+            mock_auth_client.assert_called_once_with(base_url="https://example.com", token="bearer-token")
+
+    @patch("maws.config.post_token")
+    @patch("maws.config.Client")
+    def test_api_client_client_credentials_token_failure(self, mock_client, mock_post_token):
+        mock_response = Mock()
+        mock_response.status_code = 401
+        mock_post_token.sync_detailed.return_value = mock_response
+
+        env_vars = {"API_BASE_URL": "https://example.com", "API_CLIENT_ID": "cid", "API_CLIENT_SECRET": "csecret"}
+        with patch.dict(os.environ, env_vars, clear=True):
+            settings = Settings()
+            settings.api_access_key = None
+            with pytest.raises(SystemExit, match="Failed to obtain bearer token: 401"):
+                settings.api_client
+
+    @patch("maws.config.post_token")
+    @patch("maws.config.Client")
+    @patch("maws.config.AuthenticatedClient")
+    def test_api_client_client_credentials_plain_string_token(self, mock_auth_client, mock_client, mock_post_token):
+        mock_response = Mock()
+        mock_response.status_code = 201
+        mock_response.content = json.dumps("plain-token")
+        mock_post_token.sync_detailed.return_value = mock_response
+
+        env_vars = {"API_BASE_URL": "https://example.com", "API_CLIENT_ID": "cid", "API_CLIENT_SECRET": "csecret"}
+        with patch.dict(os.environ, env_vars, clear=True):
+            settings = Settings()
+            settings.api_access_key = None
+            settings.api_client
+            mock_auth_client.assert_called_once_with(base_url="https://example.com", token="plain-token")
+
+    def test_api_client_no_auth_configured(self):
+        env_vars = {"API_BASE_URL": "https://example.com"}
+        with patch.dict(os.environ, env_vars, clear=True):
+            settings = Settings()
+            settings.api_access_key = None
+            settings.api_client_id = None
+            settings.api_client_secret = None
+            with pytest.raises(SystemExit, match="No authentication configured"):
+                settings.api_client
 
 
 class TestProfileLoading:
@@ -130,11 +203,11 @@ class TestProfileLoading:
                 """
 [profiles.dev]
 API_BASE_URL = "https://dev-api.example.com"
-API_ACCESS_TOKEN = "dev-token"
+API_ACCESS_KEY = "dev-token"
 
 [profiles.prod]
 API_BASE_URL = "https://prod-api.example.com"
-API_ACCESS_TOKEN = "prod-token"
+API_ACCESS_KEY = "prod-token"
 """
             )
             f.flush()
@@ -142,7 +215,7 @@ API_ACCESS_TOKEN = "prod-token"
             with patch("maws.config.CONFIG_FILE_PATH", Path(f.name)):
                 result = load_profile("dev")
                 assert result["API_BASE_URL"] == "https://dev-api.example.com"
-                assert result["API_ACCESS_TOKEN"] == "dev-token"
+                assert result["API_ACCESS_KEY"] == "dev-token"
 
         os.unlink(f.name)
 
@@ -177,21 +250,21 @@ class TestGetSettings:
 
             assert settings1.api_base_url == settings2.api_base_url
             assert settings1.api_version == settings2.api_version
-            assert settings1.api_access_token == settings2.api_access_token
+            assert settings1.api_access_key == settings2.api_access_key
 
     def test_get_settings_with_random_data(self, fake):
         for _ in range(3):
             mock_vars = {
                 "API_BASE_URL": fake.url(),
                 "API_VERSION": fake.word(),
-                "API_ACCESS_TOKEN": fake.password(length=32),
+                "API_ACCESS_KEY": fake.password(length=32),
             }
 
             with patch.dict(os.environ, mock_vars):
                 settings = get_settings()
                 assert settings.api_base_url == mock_vars["API_BASE_URL"]
                 assert settings.api_version == mock_vars["API_VERSION"]
-                assert settings.api_access_token == mock_vars["API_ACCESS_TOKEN"]
+                assert settings.api_access_key == mock_vars["API_ACCESS_KEY"]
                 assert settings.meta["name"] == "maws"
                 assert settings.meta["version"] == "25.12.2"
 
@@ -201,7 +274,7 @@ class TestGetSettings:
                 """
 [profiles.test]
 API_BASE_URL = "https://test-api.example.com"
-API_ACCESS_TOKEN = "test-token"
+API_ACCESS_KEY = "test-token"
 API_VERSION = "v2"
 """
             )
@@ -210,7 +283,7 @@ API_VERSION = "v2"
             with patch("maws.config.CONFIG_FILE_PATH", Path(f.name)):
                 settings = get_settings("test")
                 assert settings.api_base_url == "https://test-api.example.com"
-                assert settings.api_access_token == "test-token"
+                assert settings.api_access_key == "test-token"
                 assert settings.api_version == "v2"
 
         os.unlink(f.name)

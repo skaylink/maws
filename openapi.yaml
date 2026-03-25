@@ -15,6 +15,7 @@ paths:
         - required: true
           schema:
             type: string
+            pattern: ^[a-zA-Z0-9_-]+$
             title: Task
           name: task
           in: path
@@ -59,6 +60,7 @@ paths:
                 title: ErrorResponse
       security:
         - ApiKeyAuth: []
+        - OAuth2ClientCredentials: []
     patch:
       tags:
         - Tasks
@@ -69,6 +71,7 @@ paths:
         - required: true
           schema:
             type: string
+            pattern: ^[a-zA-Z0-9_-]+$
             title: Task
           name: task
           in: path
@@ -101,8 +104,13 @@ paths:
           description: Expectation Failed
           content:
             application/json: {}
+        '201':
+          description: Created
+          content:
+            application/json: {}
       security:
         - ApiKeyAuth: []
+        - OAuth2ClientCredentials: []
   /v1/services/{service}:
     get:
       tags:
@@ -113,6 +121,7 @@ paths:
         - required: true
           schema:
             type: string
+            pattern: ^[a-zA-Z0-9_-]+$
             title: Service
           name: service
           in: path
@@ -145,6 +154,7 @@ paths:
             application/json: {}
       security:
         - ApiKeyAuth: []
+        - OAuth2ClientCredentials: []
     patch:
       tags:
         - Services
@@ -155,6 +165,7 @@ paths:
         - required: true
           schema:
             type: string
+            pattern: ^[a-zA-Z0-9_-]+$
             title: Service
           name: service
           in: path
@@ -187,8 +198,13 @@ paths:
           description: Expectation Failed
           content:
             application/json: {}
+        '201':
+          description: Created
+          content:
+            application/json: {}
       security:
         - ApiKeyAuth: []
+        - OAuth2ClientCredentials: []
   /v1/tasks:
     get:
       tags:
@@ -220,6 +236,7 @@ paths:
             application/json: {}
       security:
         - ApiKeyAuth: []
+        - OAuth2ClientCredentials: []
   /v1/services:
     get:
       tags:
@@ -251,6 +268,50 @@ paths:
             application/json: {}
       security:
         - ApiKeyAuth: []
+        - OAuth2ClientCredentials: []
+  /token:
+    post:
+      tags:
+        - Authentication
+      summary: Obtain token using machine credentials (client_id + client_secret).
+      description: Obtain token.
+      operationId: post_token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRequest'
+        required: true
+      responses:
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                properties:
+                  access_token:
+                    type: string
+                    title: Access Token
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                  expired_at:
+                    type: string
+                    title: Expired At
+                    example: '2026-03-24T12:54:13Z'
+                type: object
+                required:
+                  - access_token
+                  - expired_at
+                title: TokenResponse
+        '401':
+          description: Unauthorized
+          content:
+            application/json: {}
 components:
   schemas:
     HTTPValidationError:
@@ -305,6 +366,19 @@ components:
       description: 'ECS Task Deployment Request.
 
         Triggered by either scheduled or event pattern.'
+    TokenRequest:
+      properties:
+        client_id:
+          type: string
+          title: Client Id
+        client_secret:
+          type: string
+          title: Client Secret
+      type: object
+      required:
+        - client_id
+        - client_secret
+      title: TokenRequest
     ValidationError:
       properties:
         loc:
@@ -336,4 +410,10 @@ components:
     ApiKeyAuth:
       type: apiKey
       in: header
-      name: x-api-token
+      name: x-api-key
+    OAuth2ClientCredentials:
+      type: oauth2
+      flows:
+        clientCredentials:
+          scopes: {}
+          tokenUrl: token

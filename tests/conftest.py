@@ -16,7 +16,7 @@ def mock_env_vars(fake):
     return {
         "API_BASE_URL": fake.url(),
         "API_VERSION": "v1",
-        "API_ACCESS_TOKEN": fake.uuid4(),
+        "API_ACCESS_KEY": fake.uuid4(),
     }
 
 
