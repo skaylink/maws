@@ -17,14 +17,26 @@ if [[ -n "${deps[*]}" ]]; then
     echo "Installing dependencies (${deps[*]})"
     if [ "${EUID}" -ne 0 ]; then
       echo "Please provide sudo password"
-      aptget=("sudo" "apt-get" "-qqy")
+      cmd=("sudo")
     else
-      aptget=("apt-get" "-qqy")
+      cmd=()
     fi
-    "${aptget[@]}" update
+    . /etc/os-release
+    case "${ID}" in
+        fedora)
+      	    cmd+=("dnf")
+      	    cmd+=("-y")
+            deps+=("libatomic-static")
+	    ;;
+        debian)
+      	    cmd+=("apt-get")
+      	    cmd+=("-y")
+            "${cmd[@]}" update
+	    ;;
+    esac
     # shellcheck disable=SC2068
-    "${aptget[@]}" install ${deps[@]}
+    "${cmd[@]}" install ${deps[@]}
 fi
 echo -e "from maws.main import app\n\napp()" >"${tmpdir}"/cli.py
-uv run nuitka --onefile --remove-output -o dist/maws "${tmpdir}"/cli.py
+uv run nuitka --onefile --remove-output -o "dist/maws_$(arch)" "${tmpdir}"/cli.py
 rm -rf "${tmpdir}"

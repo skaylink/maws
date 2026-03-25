@@ -32,7 +32,7 @@ You can download the [https://github.com/skaylink/maws/releases/latest](latest r
 Example:
 
 ```bash
-sudo curl -Lo /usr/local/bin/maws https://github.com/skaylink/maws/releases/download/25.12.2/maws_$(dpkg --print-architecture)
+sudo curl -Lo /usr/local/bin/maws https://github.com/skaylink/maws/releases/download/25.12.2/maws_$(arch)
 sudo chmod +x /usr/local/bin/maws
 ```
 

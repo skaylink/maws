@@ -33,6 +33,7 @@ dev = [
 ]
 build = [
   "nuitka==4.0",
+  "zstandard>=0.25.0",
 ]
 
 [tool.uv]
