@@ -95,14 +95,12 @@ class TestSettings:
 
     def test_settings_with_profile(self):
         with tempfile.NamedTemporaryFile(mode="w", suffix=".toml", delete=False) as f:
-            f.write(
-                """
+            f.write("""
 [profiles.test]
 API_BASE_URL = "https://test-api.example.com"
 API_ACCESS_KEY = "test-token"
 API_VERSION = "v2"
-"""
-            )
+""")
             f.flush()
 
             with patch("maws.config.CONFIG_FILE_PATH", Path(f.name)):
@@ -199,8 +197,7 @@ class TestProfileLoading:
 
     def test_load_profile_success(self):
         with tempfile.NamedTemporaryFile(mode="w", suffix=".toml", delete=False) as f:
-            f.write(
-                """
+            f.write("""
 [profiles.dev]
 API_BASE_URL = "https://dev-api.example.com"
 API_ACCESS_KEY = "dev-token"
@@ -208,8 +205,7 @@ API_ACCESS_KEY = "dev-token"
 [profiles.prod]
 API_BASE_URL = "https://prod-api.example.com"
 API_ACCESS_KEY = "prod-token"
-"""
-            )
+""")
             f.flush()
 
             with patch("maws.config.CONFIG_FILE_PATH", Path(f.name)):
@@ -221,12 +217,10 @@ API_ACCESS_KEY = "prod-token"
 
     def test_load_profile_not_found(self):
         with tempfile.NamedTemporaryFile(mode="w", suffix=".toml", delete=False) as f:
-            f.write(
-                """
+            f.write("""
 [profiles.dev]
 API_BASE_URL = "https://dev-api.example.com"
-"""
-            )
+""")
             f.flush()
 
             with patch("maws.config.CONFIG_FILE_PATH", Path(f.name)):
@@ -270,14 +264,12 @@ class TestGetSettings:
 
     def test_get_settings_with_profile(self):
         with tempfile.NamedTemporaryFile(mode="w", suffix=".toml", delete=False) as f:
-            f.write(
-                """
+            f.write("""
 [profiles.test]
 API_BASE_URL = "https://test-api.example.com"
 API_ACCESS_KEY = "test-token"
 API_VERSION = "v2"
-"""
-            )
+""")
             f.flush()
 
             with patch("maws.config.CONFIG_FILE_PATH", Path(f.name)):
