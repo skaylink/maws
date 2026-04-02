@@ -339,7 +339,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 build = [
-    { name = "nuitka", specifier = "==4.0" },
+    { name = "nuitka", specifier = "==4.0.7" },
     { name = "zstandard", specifier = ">=0.25.0" },
 ]
 dev = [
@@ -369,9 +369,9 @@ wheels = [
 
 [[package]]
 name = "nuitka"
-version = "4.0"
+version = "4.0.7"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/e5/d6/477dc84457fc07885f5fd020da4920e8a2787b2c04563ad444ac98f7d3eb/nuitka-4.0.tar.gz", hash = "sha256:0f404f292c3c2cc808d186d05a6d06a4b0aeca93f299cdfd5e33ddbcd19ab560", size = 4410008, upload-time = "2026-02-05T20:52:39.747Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ed/0e/2537066db2458843e4a1edfc524409069ad58a456fc4b312b18b1d327431/nuitka-4.0.7.tar.gz", hash = "sha256:26543bfed6009a466ae8608bdc643add81a497e8662e4aaf157cd00aa7fd5b9f", size = 4421537, upload-time = "2026-03-24T13:26:43.368Z" }
 
 [[package]]
 name = "openapi-python-client"
