@@ -16,6 +16,7 @@ docker run \
     -v "${PWD}":/source \
     -v maws-nuitka-exe-builder-cache:/python/prefix/drive_c/users/builder/AppData/Local/Nuitka/Nuitka/Cache/ccache \
     nuitka:wine \
-    sh -c 'echo -e "from maws.main import app\n\napp()" >cli.py; wine cmd /c pip install /source && wine python -m nuitka --assume-yes-for-downloads -o z:/builddir/maws.exe --onefile z:/builddir/cli.py && wine maws.exe --help && cp maws.exe /'
+    sh -c 'echo -e "from maws.main import app\n\napp()" >cli.py; wine cmd /c pip install /source && wine python -m nuitka --assume-yes-for-downloads -o z:/builddir/maws.exe --onefile z:/builddir/cli.py && wine maws.exe --help && cp maws.exe /builddir/'
 mkdir -p ./dist
-docker cp maws-nuitka-builder:/maws.exe ./dist/
+docker cp maws-nuitka-builder:/builddir/maws.exe ./dist/
+docker rm maws-nuitka-builder
