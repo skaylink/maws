@@ -9,7 +9,31 @@ on:
       - published
 
 jobs:
-  build:
+  exe:
+    runs-on: ubuntu-latest
+    env:
+      DEBIAN_FRONTEND: noninteractive
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Setup mise runtime manager
+        uses: jdx/mise-action@v2
+        with:
+          install: false
+          cache: false
+          experimental: true
+      - name: Install mise toolchain
+        run: mise install
+      - name: Build exe
+        run: mise build:exe
+        env:
+          DEBUG: ${{ runner.debug }}
+      - name: Release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/maws.exe
+          fail_on_unmatched_files: true
+  binary:
     runs-on: ${{ matrix.arch.runner }}
     env:
       DEBIAN_FRONTEND: noninteractive
@@ -23,14 +47,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-      - name: Setup mise runtime manager
-        uses: jdx/mise-action@v2
-        with:
-          install: false
-          cache: false
-          experimental: true
-      - name: Install mise
-        run: mise install
       - name: Setup mise runtime manager
         uses: jdx/mise-action@v2
         with:
