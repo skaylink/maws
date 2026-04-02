@@ -25,7 +25,7 @@ repos:
       - id: flake8
         args: ["--max-line-length=120"]
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.11.1
+    rev: 0.11.3
     hooks:
       - id: uv-sync
       - id: uv-lock
