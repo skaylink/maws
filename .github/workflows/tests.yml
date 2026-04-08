@@ -1,14 +1,14 @@
 ---
 name: tests
 on:
-  push:
   pull_request:
     branches:
       - main
+
 jobs:
-  build:
+  test:
     env:
-      API_BASE_URL: https://xd5gelkkdns3v5yx4x7ullor540qmcbg.lambda-url.eu-central-1.on.aws
+      API_BASE_URL: https://example.com
       API_ACCESS_KEY: this-is-my-secret
     runs-on: ubuntu-latest
     steps:
@@ -28,3 +28,43 @@ jobs:
         run: mise test --cov-fail-under=95
       - name: Create coverage report
         run: echo "<pre>`mise coverage`<pre>" >> $GITHUB_STEP_SUMMARY
+  exe:
+    runs-on: ubuntu-latest
+    needs: test
+    env:
+      DEBIAN_FRONTEND: noninteractive
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Setup mise runtime manager
+        uses: jdx/mise-action@v2
+        with:
+          install: false
+          cache: false
+          experimental: true
+      - name: Install mise toolchain
+        run: mise install
+      - name: Build exe
+        run: mise build:exe
+        env:
+          DEBUG: ${{ runner.debug }}
+  binary:
+    runs-on: ubuntu-latest
+    needs: test
+    env:
+      DEBIAN_FRONTEND: noninteractive
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Setup mise runtime manager
+        uses: jdx/mise-action@v2
+        with:
+          install: false
+          cache: false
+          experimental: true
+      - name: Install mise toolchain
+        run: mise install
+      - name: Build binary
+        run: mise build:binary
+        env:
+          DEBUG: ${{ runner.debug }}
