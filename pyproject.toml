@@ -1,21 +1,21 @@
 [project]
 name = "maws"
-version = "26.4.0"
+version = "26.7.0"
 description = "Managed AWS command line client"
 authors = [
   { name = "Jochen Werner", email = "jochen.werner@skaylink.com" },
   { name = "Stefan Heitmüller", email = "stefan.heitmueller@skaylink.com" },
 ]
-requires-python = ">=3.12"
+requires-python = ">=3.12,<3.14"
 readme = "README.md"
 dependencies = [
-  "pydantic==2.12.5",
-  "pydantic-settings==2.13.1",
-  "typer==0.24.1",
-  "rich==14.3.3",
-  "openapi-python-client==0.28.3",
+  "pydantic==2.13.4",
+  "pydantic-settings==2.14.2",
+  "typer==0.26.8",
+  "rich==15.0.0",
+  "openapi-python-client==0.29.0",
   "mypy-extensions==1.1.0",
-  "pathspec==1.0.4",
+  "pathspec==1.1.1",
 ]
 
 [project.urls]
@@ -26,13 +26,13 @@ maws = "maws.main:main"
 
 [dependency-groups]
 dev = [
-  "faker==40.13.0",
-  "pytest==9.0.2",
+  "faker==40.28.1",
+  "pytest==9.1.1",
   "pytest-env==1.6.0",
   "pytest-cov==7.1.0",
 ]
 build = [
-  "nuitka==4.0.7",
+  "nuitka==4.1.3",
   "zstandard>=0.25.0",
 ]
 

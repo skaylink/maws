@@ -17,14 +17,6 @@ Provides tools for Skaylink managed services.
 
 ## Installation
 
-### PIP
-
-You can install the package for Python directly via `pip`.
-
-```bash
-pip install maws
-```
-
 ### Linux Binary
 
 You can download the [latest release binaries](https://github.com/skaylink/maws/releases/latest]).
@@ -32,13 +24,21 @@ You can download the [latest release binaries](https://github.com/skaylink/maws/
 Example:
 
 ```bash
-sudo curl -Lo /usr/local/bin/maws https://github.com/skaylink/maws/releases/download/25.12.2/maws_$(arch)
+sudo curl -Lo /usr/local/bin/maws https://github.com/skaylink/maws/releases/download/26.7.0/maws_$(arch)
 sudo chmod +x /usr/local/bin/maws
 ```
 
 ### Windows EXE
 
 You can download the [latest release exe](https://github.com/skaylink/maws/releases/latest]).
+
+### Pip
+
+You can install the package for Python directly via `pip`.
+
+```bash
+pip install maws
+```
 
 ## Configuration
 
