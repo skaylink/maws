@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+#MISE description="Build the docker image"
+#MISE depends=["build:binary"]
+set -e
+
+ref="${GITHUB_REF##*/}"
+_platforms=()
+tags="-t maws:latest ${ref:+-t ${ref}}"
+
+for arch in aarch64 x86_64
+do
+    case "${arch}" in
+    "aarch64")
+        _platform="linux/arm64"
+        ;;
+    "x86_64")
+        _platform="linux/amd64"
+        ;;
+    esac
+    if [ -f ./dist/"${_platform}"/maws ]; then
+        _platforms+=("${_platform}")
+    fi
+done
+
+if [[ -n "${_platforms}" ]]; then
+    printf -v platforms "%s," "${_platforms[@]}"
+    docker buildx \
+        build \
+        --platform "${platforms%,}" \
+        --load \
+        ${tags} \
+        .
+fi

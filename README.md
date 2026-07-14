@@ -24,7 +24,7 @@ You can download the [latest release binaries](https://github.com/skaylink/maws/
 Example:
 
 ```bash
-sudo curl -Lo /usr/local/bin/maws https://github.com/skaylink/maws/releases/download/26.7.0/maws_$(arch)
+sudo curl -Lo /usr/local/bin/maws https://github.com/skaylink/maws/releases/download/latest/maws_$(arch)
 sudo chmod +x /usr/local/bin/maws
 ```
 

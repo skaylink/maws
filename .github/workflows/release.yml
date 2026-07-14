@@ -62,5 +62,5 @@ jobs:
       - name: Release assets
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/maws_${{ matrix.arch.name }}
+          files: dist/linux/*/maws
           fail_on_unmatched_files: true
