@@ -14,6 +14,7 @@ permissions:
 jobs:
   pypi:
     name: Publish to PyPI
+    if: "!contains(github.event.release.tag_name, '.test')"
     runs-on: ubuntu-latest
     environment:
       name: pypi
