@@ -42,7 +42,21 @@ if [[ -n "${deps[*]}" ]]; then
     # shellcheck disable=SC2068
     "${cmd[@]}" install ${deps[@]}
 fi
+
+arch="$(arch)"
+case "${arch}" in
+"aarch64")
+    platform="linux/arm64"
+    ;;
+"x86_64")
+    platform="linux/amd64"
+    ;;
+esac
+
+mkdir -p "dist/${platform}"
+
 echo -e "from maws.main import app\n\napp()" >"${tmpdir}"/cli.py
-uv run nuitka --onefile --remove-output -o "dist/maws_$(arch)" "${tmpdir}"/cli.py
-"dist/maws_$(arch)" --help
+uv run nuitka --onefile --remove-output -o "dist/${platform}/maws" "${tmpdir}"/cli.py
+"dist/${platform}/maws" --help
+cp "dist/${platform}/maws" "dist/${platform}/maws_${arch}"
 rm -rf "${tmpdir}"

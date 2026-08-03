@@ -6,7 +6,6 @@ nfpm = "latest"
 
 [env]
 _.python.venv = { path = ".venv", create = true }
-PYTHONPATH = "{{ cwd }}/.venv/lib/python3/site-packages/"
 
 [settings]
 python.uv_venv_auto = true
@@ -38,7 +37,5 @@ run = "uv run coverage report"
 [hooks]
 postinstall = ["mise pre-commit"]
 enter = [
-  "mkdir -p {{ cwd }}/.venv/lib/python3",
-  "ln -sf {{ cwd }}/.venv/lib/python3*/site-packages {{ cwd }}/.venv/lib/python3/site-packages",
   "mise x -- uv sync --group dev --group build",
 ]
