@@ -8,7 +8,7 @@ nfpm = "latest"
 _.python.venv = { path = ".venv", create = true }
 
 [settings]
-python.uv_venv_auto = true
+python.uv_venv_auto = "create|source"
 python.compile = false
 experimental = true
 
