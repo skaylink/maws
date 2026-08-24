@@ -26,7 +26,7 @@ maws = "maws.main:main"
 
 [dependency-groups]
 dev = [
-  "faker==40.28.1",
+  "faker==40.37.0",
   "pytest==9.1.1",
   "pytest-env==1.6.0",
   "pytest-cov==7.1.0",
