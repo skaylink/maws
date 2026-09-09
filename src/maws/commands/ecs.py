@@ -61,7 +61,6 @@ def deploy(
             console.print(f"[ERROR] {content.get("message")}", style="red", new_line_start=True)
             raise Exception(f"Deployment failed with status {response.status_code}")
     except (typer.Exit, typer.Abort):
-        # already reported, keep the original exit code
         raise
     except Exception as e:
         console.print(e, overflow="fold", style="red")
@@ -113,7 +112,6 @@ def status(
                     raise Exception(f"\nDeployment failed with status {response.status_code}.")
             time.sleep(delay)
     except (typer.Exit, typer.Abort):
-        # already reported, keep the original exit code
         raise
     except Exception as e:
         console.print(e, overflow="fold", style="red")
