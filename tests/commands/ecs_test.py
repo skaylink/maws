@@ -2,6 +2,7 @@ import json
 from http import HTTPStatus
 from unittest.mock import Mock, call, patch
 
+import pytest
 import typer
 from typer.testing import CliRunner
 
@@ -37,8 +38,8 @@ def test_jowe(mock_patch_service, mock_get_settings, mock_response_failed, fake)
     result = runner.invoke(app, ["deploy", service_name, image])
 
     print(result.output)
-    # Test passes - just checking that the command doesn't crash completely
-    assert result.exit_code is not None
+    # a failed deployment request must not report success
+    assert result.exit_code == 1
 
 
 class TestDeployCommand:
@@ -64,7 +65,10 @@ class TestDeployCommand:
     @patch("maws.commands.ecs.get_settings")
     @patch("maws.commands.ecs.patch_service")
     @patch("maws.commands.ecs.console")
-    def test_deploy_success_non_pending_status(self, mock_console, mock_patch_service, mock_get_settings, fake):
+    @patch("maws.commands.ecs.status")
+    def test_deploy_success_non_pending_status(
+        self, mock_status, mock_console, mock_patch_service, mock_get_settings, fake
+    ):
         service_name = fake.word()
         image = fake.uuid4()
 
@@ -90,13 +94,13 @@ class TestDeployCommand:
         mock_patch_service.sync_detailed.return_value = mock_response
         mock_get_settings.return_value.api_client = Mock()
 
-        result = deploy(service_name, image)
+        with pytest.raises(typer.Abort):
+            deploy(service_name, image)
         # Check that an error message was printed
         error_calls = [
             call for call in mock_console.print.call_args_list if len(call[0]) > 0 and "[ERROR]" in str(call[0][0])
         ]
         assert len(error_calls) > 0, "Expected an error message to be printed"
-        assert isinstance(result, type(typer.Abort()))
 
     @patch("maws.commands.ecs.get_settings")
     @patch("maws.commands.ecs.patch_service")
@@ -107,9 +111,29 @@ class TestDeployCommand:
         mock_patch_service.sync_detailed.side_effect = Exception("Test exception")
         mock_get_settings.return_value.api_client = Mock()
 
-        result = deploy(service_name, image)
-        assert isinstance(result, type(typer.Abort()))
+        with pytest.raises(typer.Abort):
+            deploy(service_name, image)
         mock_console.print.assert_called()
+
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.patch_service")
+    @patch("maws.commands.ecs.console")
+    def test_deploy_propagates_status_failure_exit_code(
+        self, mock_console, mock_patch_service, mock_get_settings, fake
+    ):
+        """A failing status poll after a successful PATCH must not be swallowed by deploy."""
+        service_name = fake.word()
+        image = fake.uuid4()
+
+        mock_response = Mock()
+        mock_response.status_code = HTTPStatus.CREATED
+        mock_patch_service.sync_detailed.return_value = mock_response
+        mock_get_settings.return_value.api_client = Mock()
+
+        with patch("maws.commands.ecs.status", side_effect=typer.Exit(code=1)):
+            with pytest.raises(typer.Exit) as exc_info:
+                deploy(service_name, image)
+        assert exc_info.value.exit_code == 1
 
     @patch("maws.commands.ecs.get_settings")
     @patch("maws.commands.ecs.patch_service")
@@ -129,7 +153,7 @@ class TestDeployCommand:
         image = fake.uuid4()
 
         for service_name in service_names:
-            with patch("maws.commands.ecs.console"):
+            with patch("maws.commands.ecs.console"), patch("maws.commands.ecs.status"):
                 deploy(service_name, image)
                 args, kwargs = mock_patch_service.sync_detailed.call_args
                 assert kwargs["body"].image == image
@@ -219,8 +243,10 @@ class TestStatusCommand:
         ]
         mock_get_settings.return_value.api_client = Mock()
 
-        status(service_name)
+        with pytest.raises(typer.Exit) as exc_info:
+            status(service_name)
 
+        assert exc_info.value.exit_code == 1
         assert mock_get_service.sync_detailed.call_count == 2
         mock_console.print.assert_any_call(
             f"\nDeployment failed with status {HTTPStatus.EXPECTATION_FAILED}.",
@@ -238,9 +264,9 @@ class TestStatusCommand:
         mock_get_service.sync_detailed.return_value = mock_response
         mock_get_settings.return_value.api_client = Mock()
 
-        result = status(service_name)
+        with pytest.raises(typer.Abort):
+            status(service_name)
 
-        assert isinstance(result, type(typer.Abort()))
         mock_console.print.assert_called()
 
     @patch("maws.commands.ecs.get_settings")
@@ -252,9 +278,9 @@ class TestStatusCommand:
         mock_get_service.sync_detailed.side_effect = Exception("Test exception")
         mock_get_settings.return_value.api_client = Mock()
 
-        result = status(service_name)
+        with pytest.raises(typer.Abort):
+            status(service_name)
 
-        assert isinstance(result, type(typer.Abort()))
         mock_console.print.assert_called()
 
     @patch("maws.commands.ecs.get_settings")
@@ -413,3 +439,103 @@ class TestECSCommandsCLI:
         with patch("maws.commands.ecs.status"):
             runner.invoke(app, ["deploy", service_name, image, "--profile", profile])
             mock_get_settings.assert_called_with(profile)
+
+
+class TestExitCodes:
+    """The CLI must exit non-zero on failures so shell callers can detect them."""
+
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.patch_service")
+    def test_deploy_request_rejected_exits_1(self, mock_patch_service, mock_get_settings, fake):
+        mock_response = Mock()
+        mock_response.status_code = HTTPStatus.BAD_REQUEST
+        mock_response.content = json.dumps({"error": fake.sentence()})
+        mock_patch_service.sync_detailed.return_value = mock_response
+        mock_get_settings.return_value.api_client = Mock()
+
+        result = CliRunner().invoke(app, ["deploy", fake.word(), fake.uuid4()])
+
+        assert result.exit_code == 1
+
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.patch_service")
+    def test_deploy_client_exception_exits_1(self, mock_patch_service, mock_get_settings, fake):
+        mock_patch_service.sync_detailed.side_effect = Exception("boom")
+        mock_get_settings.return_value.api_client = Mock()
+
+        result = CliRunner().invoke(app, ["deploy", fake.word(), fake.uuid4()])
+
+        assert result.exit_code == 1
+
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.patch_service")
+    @patch("maws.commands.ecs.get_service")
+    def test_deploy_accepted_then_failed_status_exits_1(
+        self, mock_get_service, mock_patch_service, mock_get_settings, fake
+    ):
+        """PATCH returns 201, polling then reports 417 -> overall failure."""
+        mock_patch_response = Mock()
+        mock_patch_response.status_code = HTTPStatus.CREATED
+        mock_patch_service.sync_detailed.return_value = mock_patch_response
+
+        mock_get_response = Mock()
+        mock_get_response.status_code = HTTPStatus.EXPECTATION_FAILED
+        mock_get_service.sync_detailed.return_value = mock_get_response
+        mock_get_settings.return_value.api_client = Mock()
+
+        result = CliRunner().invoke(app, ["deploy", fake.word(), fake.uuid4()])
+
+        assert result.exit_code == 1
+
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.patch_service")
+    @patch("maws.commands.ecs.get_service")
+    def test_deploy_success_exits_0(self, mock_get_service, mock_patch_service, mock_get_settings, fake):
+        mock_patch_response = Mock()
+        mock_patch_response.status_code = HTTPStatus.CREATED
+        mock_patch_service.sync_detailed.return_value = mock_patch_response
+
+        mock_get_response = Mock()
+        mock_get_response.status_code = HTTPStatus.OK
+        mock_get_service.sync_detailed.return_value = mock_get_response
+        mock_get_settings.return_value.api_client = Mock()
+
+        result = CliRunner().invoke(app, ["deploy", fake.word(), fake.uuid4()])
+
+        assert result.exit_code == 0
+
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.get_service")
+    def test_status_failed_exits_1(self, mock_get_service, mock_get_settings, fake):
+        mock_response = Mock()
+        mock_response.status_code = HTTPStatus.EXPECTATION_FAILED
+        mock_get_service.sync_detailed.return_value = mock_response
+        mock_get_settings.return_value.api_client = Mock()
+
+        result = CliRunner().invoke(app, ["status", fake.word(), "--profile", fake.word()])
+
+        assert result.exit_code == 1
+
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.get_service")
+    def test_status_unexpected_code_exits_1(self, mock_get_service, mock_get_settings, fake):
+        mock_response = Mock()
+        mock_response.status_code = HTTPStatus.NOT_FOUND
+        mock_get_service.sync_detailed.return_value = mock_response
+        mock_get_settings.return_value.api_client = Mock()
+
+        result = CliRunner().invoke(app, ["status", fake.word(), "--profile", fake.word()])
+
+        assert result.exit_code == 1
+
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.get_service")
+    def test_status_success_exits_0(self, mock_get_service, mock_get_settings, fake):
+        mock_response = Mock()
+        mock_response.status_code = HTTPStatus.OK
+        mock_get_service.sync_detailed.return_value = mock_response
+        mock_get_settings.return_value.api_client = Mock()
+
+        result = CliRunner().invoke(app, ["status", fake.word(), "--profile", fake.word()])
+
+        assert result.exit_code == 0

@@ -58,11 +58,13 @@ def deploy(
             return status(service_name=service_name, delay=5, profile=profile)
         else:
             content = json.loads(response.content)
-            console.print(f"[ERROR] {content.get("error")}", style="red", new_line_start=True)
+            console.print(f"[ERROR] {content.get("message")}", style="red", new_line_start=True)
             raise Exception(f"Deployment failed with status {response.status_code}")
+    except (typer.Exit, typer.Abort):
+        raise
     except Exception as e:
         console.print(e, overflow="fold", style="red")
-        return typer.Abort()
+        raise typer.Abort() from e
 
 
 @app.command()
@@ -99,7 +101,7 @@ def status(
                         f"\nDeployment failed with status {response.status_code}.",
                         style="red",
                     )
-                    break
+                    raise typer.Exit(code=1)
                 case HTTPStatus.OK:
                     console.print(
                         f"\nDeployment succeeded with status {response.status_code}.",
@@ -109,6 +111,8 @@ def status(
                 case _:
                     raise Exception(f"\nDeployment failed with status {response.status_code}.")
             time.sleep(delay)
+    except (typer.Exit, typer.Abort):
+        raise
     except Exception as e:
         console.print(e, overflow="fold", style="red")
-        return typer.Abort()
+        raise typer.Abort() from e
