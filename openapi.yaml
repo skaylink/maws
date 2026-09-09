@@ -42,22 +42,6 @@ paths:
           description: Not Found
           content:
             application/json: {}
-        '417':
-          description: Expectation Failed
-          content:
-            application/json:
-              schema:
-                properties:
-                  error:
-                    anyOf:
-                      - type: string
-                      - items: {}
-                        type: array
-                    title: Error
-                type: object
-                required:
-                  - error
-                title: ErrorResponse
       security:
         - ApiKeyAuth: []
         - OAuth2ClientCredentials: []

@@ -6,7 +6,7 @@ import pytest
 import typer
 from typer.testing import CliRunner
 
-from maws.commands.ecs import app, deploy, status
+from maws.commands.ecs import app, deploy, services, status, tasks
 
 runner = CliRunner()
 
@@ -356,6 +356,172 @@ class TestStatusCommand:
         mock_get_settings.assert_called_with(profile)
 
 
+class TestServicesCommand:
+
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.get_services")
+    @patch("maws.commands.ecs.console")
+    def test_services_lists_service_names(self, mock_console, mock_get_services, mock_get_settings, fake):
+        service_names = [fake.word(), fake.slug(), f"{fake.word()}-{fake.word()}"]
+
+        mock_response = Mock()
+        mock_response.status_code = HTTPStatus.OK
+        mock_response.content = json.dumps(service_names)
+        mock_get_services.sync_detailed.return_value = mock_response
+        mock_get_settings.return_value.api_client = Mock()
+
+        services()
+
+        mock_get_services.sync_detailed.assert_called_once_with(client=mock_get_settings.return_value.api_client)
+        for service_name in service_names:
+            mock_console.print.assert_any_call(service_name)
+
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.get_services")
+    @patch("maws.commands.ecs.console")
+    def test_services_empty_list(self, mock_console, mock_get_services, mock_get_settings):
+        mock_response = Mock()
+        mock_response.status_code = HTTPStatus.OK
+        mock_response.content = json.dumps([])
+        mock_get_services.sync_detailed.return_value = mock_response
+        mock_get_settings.return_value.api_client = Mock()
+
+        services()
+
+        mock_console.print.assert_called_once_with("No ECS services available.", style="yellow")
+
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.get_services")
+    @patch("maws.commands.ecs.console")
+    def test_services_failure_status(self, mock_console, mock_get_services, mock_get_settings, fake):
+        error_message = fake.sentence()
+
+        mock_response = Mock()
+        mock_response.status_code = HTTPStatus.UNAUTHORIZED
+        mock_response.content = json.dumps({"error": error_message})
+        mock_get_services.sync_detailed.return_value = mock_response
+        mock_get_settings.return_value.api_client = Mock()
+
+        result = services()
+
+        error_calls = [
+            call for call in mock_console.print.call_args_list if len(call[0]) > 0 and "[ERROR]" in str(call[0][0])
+        ]
+        assert len(error_calls) > 0, "Expected an error message to be printed"
+        assert isinstance(result, type(typer.Abort()))
+
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.get_services")
+    @patch("maws.commands.ecs.console")
+    def test_services_exception_handling(self, mock_console, mock_get_services, mock_get_settings):
+        mock_get_services.sync_detailed.side_effect = Exception("Test exception")
+        mock_get_settings.return_value.api_client = Mock()
+
+        result = services()
+
+        assert isinstance(result, type(typer.Abort()))
+        mock_console.print.assert_called()
+
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.get_services")
+    @patch("maws.commands.ecs.console")
+    def test_services_with_profile(self, mock_console, mock_get_services, mock_get_settings, fake):
+        profile = "prod"
+
+        mock_response = Mock()
+        mock_response.status_code = HTTPStatus.OK
+        mock_response.content = json.dumps([fake.word()])
+        mock_get_services.sync_detailed.return_value = mock_response
+        mock_get_settings.return_value.api_client = Mock()
+
+        services(profile=profile)
+
+        mock_get_settings.assert_called_with(profile)
+
+
+class TestTasksCommand:
+
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.get_tasks")
+    @patch("maws.commands.ecs.console")
+    def test_tasks_lists_task_names(self, mock_console, mock_get_tasks, mock_get_settings, fake):
+        task_names = [fake.word(), fake.slug(), f"{fake.word()}-{fake.word()}"]
+
+        mock_response = Mock()
+        mock_response.status_code = HTTPStatus.OK
+        mock_response.content = json.dumps(task_names)
+        mock_get_tasks.sync_detailed.return_value = mock_response
+        mock_get_settings.return_value.api_client = Mock()
+
+        tasks()
+
+        mock_get_tasks.sync_detailed.assert_called_once_with(client=mock_get_settings.return_value.api_client)
+        for task_name in task_names:
+            mock_console.print.assert_any_call(task_name)
+
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.get_tasks")
+    @patch("maws.commands.ecs.console")
+    def test_tasks_empty_list(self, mock_console, mock_get_tasks, mock_get_settings):
+        mock_response = Mock()
+        mock_response.status_code = HTTPStatus.OK
+        mock_response.content = json.dumps([])
+        mock_get_tasks.sync_detailed.return_value = mock_response
+        mock_get_settings.return_value.api_client = Mock()
+
+        tasks()
+
+        mock_console.print.assert_called_once_with("No ECS tasks available.", style="yellow")
+
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.get_tasks")
+    @patch("maws.commands.ecs.console")
+    def test_tasks_failure_status(self, mock_console, mock_get_tasks, mock_get_settings, fake):
+        error_message = fake.sentence()
+
+        mock_response = Mock()
+        mock_response.status_code = HTTPStatus.UNAUTHORIZED
+        mock_response.content = json.dumps({"error": error_message})
+        mock_get_tasks.sync_detailed.return_value = mock_response
+        mock_get_settings.return_value.api_client = Mock()
+
+        result = tasks()
+
+        error_calls = [
+            call for call in mock_console.print.call_args_list if len(call[0]) > 0 and "[ERROR]" in str(call[0][0])
+        ]
+        assert len(error_calls) > 0, "Expected an error message to be printed"
+        assert isinstance(result, type(typer.Abort()))
+
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.get_tasks")
+    @patch("maws.commands.ecs.console")
+    def test_tasks_exception_handling(self, mock_console, mock_get_tasks, mock_get_settings):
+        mock_get_tasks.sync_detailed.side_effect = Exception("Test exception")
+        mock_get_settings.return_value.api_client = Mock()
+
+        result = tasks()
+
+        assert isinstance(result, type(typer.Abort()))
+        mock_console.print.assert_called()
+
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.get_tasks")
+    @patch("maws.commands.ecs.console")
+    def test_tasks_with_profile(self, mock_console, mock_get_tasks, mock_get_settings, fake):
+        profile = "prod"
+
+        mock_response = Mock()
+        mock_response.status_code = HTTPStatus.OK
+        mock_response.content = json.dumps([fake.word()])
+        mock_get_tasks.sync_detailed.return_value = mock_response
+        mock_get_settings.return_value.api_client = Mock()
+
+        tasks(profile=profile)
+
+        mock_get_settings.assert_called_with(profile)
+
+
 class TestECSCommandsCLI:
 
     @patch("maws.commands.ecs.get_settings")
@@ -421,6 +587,42 @@ class TestECSCommandsCLI:
         )
 
         mock_get_service.sync_detailed.assert_called_once()
+
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.get_services")
+    @patch("maws.commands.ecs.console")
+    def test_services_command_cli(self, mock_console, mock_get_services, mock_get_settings, fake):
+        runner = CliRunner()
+        profile = fake.word()
+
+        mock_response = Mock()
+        mock_response.status_code = HTTPStatus.OK
+        mock_response.content = json.dumps([fake.word()])
+        mock_get_services.sync_detailed.return_value = mock_response
+        mock_get_settings.return_value.api_client = Mock()
+
+        runner.invoke(app, ["services", "--profile", profile])
+
+        mock_get_services.sync_detailed.assert_called_once()
+        mock_get_settings.assert_called_with(profile)
+
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.get_tasks")
+    @patch("maws.commands.ecs.console")
+    def test_tasks_command_cli(self, mock_console, mock_get_tasks, mock_get_settings, fake):
+        runner = CliRunner()
+        profile = fake.word()
+
+        mock_response = Mock()
+        mock_response.status_code = HTTPStatus.OK
+        mock_response.content = json.dumps([fake.word()])
+        mock_get_tasks.sync_detailed.return_value = mock_response
+        mock_get_settings.return_value.api_client = Mock()
+
+        runner.invoke(app, ["tasks", "--profile", profile])
+
+        mock_get_tasks.sync_detailed.assert_called_once()
+        mock_get_settings.assert_called_with(profile)
 
     @patch("maws.commands.ecs.get_settings")
     @patch("maws.commands.ecs.patch_service")
