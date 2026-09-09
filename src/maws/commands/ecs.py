@@ -7,8 +7,10 @@ from rich.console import Console
 
 from maws.clients.ecs_service_deployment_client.api.services import (
     get_service,
+    get_services,
     patch_service,
 )
+from maws.clients.ecs_service_deployment_client.api.tasks import get_tasks
 from maws.clients.ecs_service_deployment_client.models import ServiceDeploymentRequest
 from maws.config import CONFIG_FILE_PATH, get_settings
 
@@ -60,6 +62,70 @@ def deploy(
             content = json.loads(response.content)
             console.print(f"[ERROR] {content.get("error")}", style="red", new_line_start=True)
             raise Exception(f"Deployment failed with status {response.status_code}")
+    except Exception as e:
+        console.print(e, overflow="fold", style="red")
+        return typer.Abort()
+
+
+@app.command()
+def services(
+    profile: str = typer.Option(None, help=f"Profile name from {str(CONFIG_FILE_PATH)}"),
+) -> None:
+    """
+    List the available ECS services
+
+    Args:
+        profile (str, Optional): Profile name
+
+    Raises:
+        Exception
+    """
+    env = get_settings(profile)
+    try:
+        response = get_services.sync_detailed(client=env.api_client)
+        if response.status_code == HTTPStatus.OK:
+            service_names = json.loads(response.content)
+            if not service_names:
+                console.print("No ECS services available.", style="yellow")
+                return
+            for service_name in service_names:
+                console.print(service_name)
+        else:
+            content = json.loads(response.content)
+            console.print(f"[ERROR] {content.get("error")}", style="red", new_line_start=True)
+            raise Exception(f"Listing services failed with status {response.status_code}")
+    except Exception as e:
+        console.print(e, overflow="fold", style="red")
+        return typer.Abort()
+
+
+@app.command()
+def tasks(
+    profile: str = typer.Option(None, help=f"Profile name from {str(CONFIG_FILE_PATH)}"),
+) -> None:
+    """
+    List the available ECS tasks
+
+    Args:
+        profile (str, Optional): Profile name
+
+    Raises:
+        Exception
+    """
+    env = get_settings(profile)
+    try:
+        response = get_tasks.sync_detailed(client=env.api_client)
+        if response.status_code == HTTPStatus.OK:
+            task_names = json.loads(response.content)
+            if not task_names:
+                console.print("No ECS tasks available.", style="yellow")
+                return
+            for task_name in task_names:
+                console.print(task_name)
+        else:
+            content = json.loads(response.content)
+            console.print(f"[ERROR] {content.get("error")}", style="red", new_line_start=True)
+            raise Exception(f"Listing tasks failed with status {response.status_code}")
     except Exception as e:
         console.print(e, overflow="fold", style="red")
         return typer.Abort()
