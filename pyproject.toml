@@ -13,7 +13,7 @@ dependencies = [
   "pydantic-settings==2.15.0",
   "typer==0.26.8",
   "rich==15.0.0",
-  "openapi-python-client==0.29.0",
+  "openapi-python-client==0.29.1",
   "mypy-extensions==1.1.0",
   "pathspec==1.1.1",
 ]
