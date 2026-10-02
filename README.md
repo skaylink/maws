@@ -60,13 +60,13 @@ API_CLIENT_SECRET = "<your-prod-deployment-secret>"
 ### With profiles
 
 ```bash
-maws ecs deploy <service-name> <image> --profile <some-profile>
+maws ecs services deploy <service-name> <image> --profile <some-profile>
 ```
 
 ### With environment variables
 
 ```bash
-env API_BASE_URL=<your-deployment-endpoint> API_ACCESS_KEY=<your-api-token> maws ecs deploy <service-name> <image>
+env API_BASE_URL=<your-deployment-endpoint> API_ACCESS_KEY=<your-api-token> maws ecs services deploy <service-name> <image>
 ```
 
 ## Development
@@ -80,7 +80,7 @@ mise install
 
 ```bash
 # Using a specific profile
-mise dev ecs deploy service-name image-tag --profile dev
+mise dev ecs services deploy service-name image-tag --profile dev
 ```
 
 #### Run tests
