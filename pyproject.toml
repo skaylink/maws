@@ -11,7 +11,7 @@ readme = "README.md"
 dependencies = [
   "pydantic==2.13.5",
   "pydantic-settings==2.15.0",
-  "typer==0.26.8",
+  "typer==0.27.2",
   "rich==15.0.0",
   "openapi-python-client==0.29.1",
   "mypy-extensions==1.1.0",
