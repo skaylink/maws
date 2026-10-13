@@ -32,7 +32,7 @@ dev = [
   "pytest-cov==7.1.0",
 ]
 build = [
-  "nuitka==4.2.2",
+  "nuitka==4.3",
   "zstandard>=0.25.0",
 ]
 
