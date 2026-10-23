@@ -653,6 +653,47 @@ class TestECSCommandsCLI:
             runner.invoke(app, ["services", "deploy", service_name, image, "--profile", profile])
             mock_get_settings.assert_called_with(profile)
 
+    @pytest.mark.parametrize("count", [0, 3])
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.patch_service")
+    @patch("maws.commands.ecs.get_service")
+    def test_deploy_cli_passes_desired_count(
+        self, mock_get_service, mock_patch_service, mock_get_settings, count, fake
+    ):
+        mock_patch_service.sync_detailed.return_value = Mock(status_code=HTTPStatus.CREATED)
+        mock_get_service.sync_detailed.return_value = Mock(status_code=HTTPStatus.OK)
+        mock_get_settings.return_value.api_client = Mock()
+        image = fake.uuid4()
+
+        result = CliRunner().invoke(app, ["services", "deploy", fake.word(), image, "--desired-count", str(count)])
+
+        assert result.exit_code == 0
+        body = mock_patch_service.sync_detailed.call_args.kwargs["body"]
+        assert body.to_dict() == {"image": image, "force": False, "secret_arns": [], "desired_count": count}
+
+    @patch("maws.commands.ecs.get_settings")
+    @patch("maws.commands.ecs.patch_service")
+    @patch("maws.commands.ecs.get_service")
+    def test_deploy_cli_without_desired_count(self, mock_get_service, mock_patch_service, mock_get_settings, fake):
+        mock_patch_service.sync_detailed.return_value = Mock(status_code=HTTPStatus.CREATED)
+        mock_get_service.sync_detailed.return_value = Mock(status_code=HTTPStatus.OK)
+        mock_get_settings.return_value.api_client = Mock()
+
+        result = CliRunner().invoke(app, ["services", "deploy", fake.word(), fake.uuid4()])
+
+        assert result.exit_code == 0
+        body = mock_patch_service.sync_detailed.call_args.kwargs["body"]
+        assert "desired_count" not in body.to_dict()
+
+    @pytest.mark.parametrize("count", ["-1", "abc", "1.5"])
+    @patch("maws.commands.ecs.patch_service")
+    def test_deploy_cli_rejects_invalid_desired_count(self, mock_patch_service, count, fake):
+        result = CliRunner().invoke(app, ["services", "deploy", fake.word(), fake.uuid4(), "--desired-count", count])
+
+        assert result.exit_code == 2
+        assert "--desired-count" in result.output
+        mock_patch_service.sync_detailed.assert_not_called()
+
 
 class TestExitCodes:
     """The CLI must exit non-zero on failures so shell callers can detect them."""

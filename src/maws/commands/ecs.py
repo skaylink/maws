@@ -160,6 +160,11 @@ def deploy_service(
         [],
         help="List of secret ARNs to attach to the service",
     ),
+    desired_count: int | None = typer.Option(
+        None,
+        min=0,
+        help="The desired number of running tasks for the service",
+    ),
     profile: str = typer.Option(None, help=PROFILE_HELP),
 ) -> None:
     """
@@ -173,7 +178,13 @@ def deploy_service(
             lambda: patch_service.sync_detailed(
                 service=service_name,
                 client=env.api_client,
-                body=ServiceDeploymentRequest(image=image, force=force, secret_arns=secret_arns),
+                body=ServiceDeploymentRequest(
+                    image=image,
+                    force=force,
+                    secret_arns=secret_arns,
+                    # omit the field when not given; the API then keeps the stack's current DesiredCount
+                    desired_count=desired_count if desired_count is not None else UNSET,
+                ),
             ),
         )
     except Exception as e:
