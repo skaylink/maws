@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: ECS Service Deployment
-  version: 26.10.0
+  version: 26.10.1
 servers:
   - url: ''
 paths:
@@ -331,6 +331,13 @@ components:
           title: Secret Arns
           description: List of secret ARNs to attach to the service
           default: []
+        desired_count:
+          anyOf:
+            - type: integer
+              minimum: 0.0
+            - type: 'null'
+          title: Desired count
+          description: The desired number of running tasks for the service
       type: object
       required:
         - image
