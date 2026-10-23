@@ -4,6 +4,7 @@ from unittest.mock import Mock, call, patch
 
 import pytest
 import typer
+from rich.text import Text
 from typer.testing import CliRunner
 
 from maws.commands.ecs import (
@@ -691,7 +692,8 @@ class TestECSCommandsCLI:
         result = CliRunner().invoke(app, ["services", "deploy", fake.word(), fake.uuid4(), "--desired-count", count])
 
         assert result.exit_code == 2
-        assert "--desired-count" in result.output
+        # Strip ANSI styling: Typer forces Rich colors when GITHUB_ACTIONS is set.
+        assert "--desired-count" in Text.from_ansi(result.output).plain
         mock_patch_service.sync_detailed.assert_not_called()
 
 
