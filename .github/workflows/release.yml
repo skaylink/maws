@@ -15,9 +15,9 @@ jobs:
       DEBIAN_FRONTEND: noninteractive
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Setup mise runtime manager
-        uses: jdx/mise-action@v2
+        uses: jdx/mise-action@v4
         with:
           install: false
           cache: false
@@ -29,7 +29,7 @@ jobs:
         env:
           DEBUG: ${{ runner.debug }}
       - name: Release assets
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: dist/maws.exe
           fail_on_unmatched_files: true
@@ -46,9 +46,9 @@ jobs:
             runner: ubuntu-24.04-arm
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Setup mise runtime manager
-        uses: jdx/mise-action@v2
+        uses: jdx/mise-action@v4
         with:
           install: false
           cache: false
@@ -60,7 +60,7 @@ jobs:
         env:
           DEBUG: ${{ runner.debug }}
       - name: Release assets
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: dist/linux/*/maws_*
           fail_on_unmatched_files: true
