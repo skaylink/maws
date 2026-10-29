@@ -9,8 +9,8 @@ authors = [
 requires-python = ">=3.12,<3.14"
 readme = "README.md"
 dependencies = [
-  "pydantic==2.13.5",
-  "pydantic-settings==2.15.0",
+  "pydantic==2.14.1",
+  "pydantic-settings==2.16.1",
   "typer==0.27.3",
   "rich==15.0.0",
   "openapi-python-client==0.29.1",
@@ -28,11 +28,11 @@ maws = "maws.main:main"
 dev = [
   "faker==40.43.0",
   "pytest==9.1.1",
-  "pytest-env==1.7.1",
+  "pytest-env==1.8.1",
   "pytest-cov==7.1.0",
 ]
 build = [
-  "nuitka==4.3",
+  "nuitka==4.3.1",
   "zstandard>=0.25.0",
 ]
 
