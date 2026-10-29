@@ -13,9 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Setup mise runtime manager
-        uses: jdx/mise-action@v2
+        uses: jdx/mise-action@v4
         with:
           install: false
           cache: false
@@ -35,9 +35,9 @@ jobs:
       DEBIAN_FRONTEND: noninteractive
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Setup mise runtime manager
-        uses: jdx/mise-action@v2
+        uses: jdx/mise-action@v4
         with:
           install: false
           cache: false
@@ -55,9 +55,9 @@ jobs:
       DEBIAN_FRONTEND: noninteractive
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Setup mise runtime manager
-        uses: jdx/mise-action@v2
+        uses: jdx/mise-action@v4
         with:
           install: false
           cache: false
