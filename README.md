@@ -89,6 +89,16 @@ mise dev ecs services deploy service-name image-tag --profile dev
 mise test
 ```
 
+#### Documentation
+
+The documentation in [`docs/`](docs/) is built with [MkDocs](https://www.mkdocs.org) and the
+[Terminal for MkDocs](https://github.com/ntno/mkdocs-terminal) theme.
+
+```bash
+mise docs:serve  # live preview on http://127.0.0.1:8000
+mise docs:build  # static site in ./site
+```
+
 <!-- links -->
 
 [python-url]: https://www.python.org

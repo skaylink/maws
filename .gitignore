@@ -8,6 +8,7 @@ __pycache__
 .pre-commit-trivy-cache
 .venv
 dist
+site
 src/maws/clients
 nuitka-crash-report.xml
 *.deb

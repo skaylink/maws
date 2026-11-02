@@ -34,6 +34,14 @@ depends = ["openapi-client-generator"]
 description = "Get test coverage report"
 run = "uv run coverage report"
 
+[tasks."docs:serve"]
+description = "Serve the mkdocs documentation locally with live reload"
+run = "uv run --group docs mkdocs serve"
+
+[tasks."docs:build"]
+description = "Build the mkdocs documentation into ./site"
+run = "uv run --group docs mkdocs build --strict"
+
 [hooks]
 postinstall = ["mise pre-commit"]
 enter = [
