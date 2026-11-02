@@ -20,6 +20,7 @@ dependencies = [
 
 [project.urls]
 Repository = "https://github.com/skaylink/maws"
+Documentation = "https://skaylink.github.io/maws/"
 
 [project.scripts]
 maws = "maws.main:main"
@@ -34,6 +35,10 @@ dev = [
 build = [
   "nuitka==4.3",
   "zstandard>=0.25.0",
+]
+docs = [
+  "mkdocs==1.6.1",
+  "mkdocs-terminal==4.8.0",
 ]
 
 [tool.uv]

@@ -1,0 +1,43 @@
+---
+site_name: maws
+site_url: https://skaylink.github.io/maws/
+site_description: Skaylink Managed AWS command line client
+repo_url: https://github.com/skaylink/maws
+repo_name: skaylink/maws
+edit_uri: edit/main/docs/
+copyright: Copyright Skaylink GmbH
+strict: true
+
+theme:
+  name: terminal
+  palette: dark
+  features:
+    - footer.prev_next
+    - navigation.side.indexes
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - tables
+  - toc:
+      permalink: "#"
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+
+plugins:
+  - search
+
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - Configuration: configuration.md
+  - Commands:
+      - commands/index.md
+      - maws ecs services: commands/ecs-services.md
+      - maws ecs tasks: commands/ecs-tasks.md
+      - Deprecations: commands/deprecations.md
+  - CI/CD examples: ci-cd.md
